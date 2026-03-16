@@ -23,7 +23,7 @@ There isn’t a simple built-in way to define behavioral rules outside this func
 
 ## Manual decision pipelines
 
-When implementing structured behavior (like BDI), the developer has to manually build the decision flow.
+When implementing structured behavior like BDI, the developer has to manually build the decision flow.
 
 Typical pattern:
 
@@ -39,3 +39,14 @@ Mesa does not provide built-in helpers for this structure, so the entire pipelin
 Even when behavior has clear stages (beliefs, goals, intentions, actions), they still end up implemented inside step().
 
 As behavior grows, this function becomes the place where everything happens, which makes it harder to organize the logic.
+
+## Policy logic inside agents
+
+Even when using a policy-based approach, the policy still ends up written inside the agent class.
+
+Example from the RL-style model:
+
+state = observe()
+action = policy(state)
+
+There is no built-in structure in Mesa for separating policy logic from the agent implementation.

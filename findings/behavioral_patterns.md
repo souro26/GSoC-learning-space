@@ -41,7 +41,7 @@ Some agents structure their behavior as a sequence of stages.
 
 Example from the BDI model:
 
-beliefs -> goal -> intention → action
+beliefs -> goal -> intention -> action
 
 In code this ends up looking like:
 
@@ -62,3 +62,30 @@ Examples:
 - BDI agents scanning nearby cells to detect resources
 
 This scanning step happens every simulation tick.
+
+## Pattern 6 — Policy-based decisions
+
+Some agents choose actions based on a simple policy.
+
+Example from the RL-style model:
+
+state -> action
+
+resource nearby -> collect
+otherwise -> move
+
+The policy is usually written as a function that takes the current state and returns an action.
+
+## Pattern 7 — Observe -> decide -> act loop
+
+Many agents follow a simple loop each step:
+
+observe environment
+decide what to do
+execute the action
+
+Example from the RL-style model:
+
+state = observe()
+action = policy(state)
+act(action)
