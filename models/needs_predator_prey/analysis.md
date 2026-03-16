@@ -24,7 +24,7 @@ Wolf behavior priority
 3. energy high -> reproduce
 4. otherwise -> wander
 
-These priorities are implemented directly inside the agent "step()" method using conditional statements.
+These priorities are implemented directly inside the agent step() method using conditional statements.
 
 Example pattern:
 
@@ -45,7 +45,7 @@ The order of these checks implicitly defines behavior priority.
 Agents detect conditions in two ways:
 
 Internal state checks
-Example: "energy < threshold"
+Example: energy < threshold
 
 Environmental scanning
 Example: checking nearby cells for predators or prey.
@@ -54,7 +54,7 @@ Both of these checks happen every simulation step. Even when the agent’s state
 
 ## Decision Logic
 
-Decision logic is procedural and embedded inside the "step()" method. Each behavior is expressed as a condition followed by an action.
+Decision logic is procedural and embedded inside the step() method. Each behavior is expressed as a condition followed by an action.
 
 There is no explicit representation of behavioral rules such as:
 
@@ -66,14 +66,14 @@ Instead, rules are implemented directly in code. Behavior priority is determined
 
 ## Coupling of Responsibilities
 
-Several responsibilities are mixed inside "step()":
+Several responsibilities are mixed inside step():
 
 state updates
 environment observation
 decision logic
 action execution
 
-Example flow inside "step()":
+Example flow inside step():
 
 1. update internal state (energy decreases)
 2. scan nearby cells for predators
@@ -81,7 +81,7 @@ Example flow inside "step()":
 4. choose behavior
 5. execute movement or interaction
 
-Because all of this logic is located in one function, "step()" becomes the central location for behavioral code. As more behaviors are added, the method grows longer and harder to reason about.
+Because all of this logic is located in one function, step() becomes the central location for behavioral code. As more behaviors are added, the method grows longer and harder to reason about.
 
 ## Repeated Condition Evaluation
 
@@ -109,7 +109,7 @@ is embedded directly inside agent code. If another agent type needs similar beha
 
 ## Step Complexity
 
-The complexity of "step()" grows as new behaviors are added. Each additional rule introduces:
+The complexity of step() grows as new behaviors are added. Each additional rule introduces:
 
 - another conditional check
 - additional state observation
@@ -119,9 +119,9 @@ This leads to step methods that gradually accumulate behavioral logic. This patt
 
 ## Research Questions
 
-1. How complex does the "step()" method become as more behavioral rules are added?
+1. How complex does the step() method become as more behavioral rules are added?
 2. Are behavioral conditions evaluated even when no relevant state change occurs?
 3. How reusable are behavioral rules across different agent types?
-4. Does Mesa provide abstractions for defining behavioral rules outside the "step()" method?
+4. Does Mesa provide abstractions for defining behavioral rules outside the step() method?
 5. What patterns emerge across different behavioral architectures implemented in Mesa?
 6. These questions guide the evaluation of Mesa’s support for behavioral modeling.
