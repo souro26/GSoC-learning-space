@@ -1,50 +1,25 @@
-from mesa.model import Model
+from mesa import Model
 from mesa.discrete_space import OrthogonalMooreGrid
 from agent import Sheep, Wolf
-import random
 
 
-class PredatorPreyModel(Model):
-
-    def __init__(
-        self,
-        width=20,
-        height=20,
-        initial_sheep=50,
-        initial_wolves=20
-    ):
+class NeedsPredatorPrey(Model):
+    def __init__(self, width=20, height=20, sheep_count=40, wolf_count=10):
         super().__init__()
 
         self.grid = OrthogonalMooreGrid(
             (width, height),
+            torus=True,
             random=self.random
         )
 
-        # create sheep
-        for _ in range(initial_sheep):
-
+        for _ in range(sheep_count):
             sheep = Sheep(self)
+            sheep.cell = self.random.choice(list(self.grid.all_cells))
 
-            x = random.randrange(width)
-            y = random.randrange(height)
-
-            cell = self.grid._cells[(x, y)]
-            cell.add_agent(sheep)
-            sheep.pos = (x, y)
-
-        # create wolves
-        for _ in range(initial_wolves):
-
+        for _ in range(wolf_count):
             wolf = Wolf(self)
-
-            x = random.randrange(width)
-            y = random.randrange(height)
-
-            cell = self.grid._cells[(x, y)]
-            cell.add_agent(wolf)
-            wolf.pos = (x, y)
+            wolf.cell = self.random.choice(list(self.grid.all_cells))
 
     def step(self):
-
-        for agent in self.agents.copy():
-            agent.step()
+        self.agents.shuffle_do("step")
