@@ -50,3 +50,13 @@ state = observe()
 action = policy(state)
 
 There is no built-in structure in Mesa for separating policy logic from the agent implementation.
+
+## Note on the Actions API
+
+Recent versions of Mesa introduce an Actions API which helps separate action logic from the agent step() method.
+
+This improves how actions are defined and reused.
+
+However, observation and decision logic are still usually implemented manually inside step().
+
+The models in this repository focus on those parts of agent behavior.

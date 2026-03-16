@@ -117,8 +117,17 @@ A helper structure for simple decision pipelines might make this pattern clearer
 
 These ideas are intentionally small.
 
-They are meant to support common behavior patterns without changing how Mesa agents currently work.
+Recent versions of Mesa introduce an Actions API, which helps organize how agents perform actions.
 
-Agents would still use the normal step() method.
+The primitives listed here focus on the parts that the Actions system does not address as much:
 
-The primitives would simply provide helpers for things that appear repeatedly across models.
+- observation of state and environment
+- deciding when actions should start
+
+For example, triggers could activate actions when certain conditions become true.
+
+Example idea:
+
+hunger < threshold -> eat()
+
+In this case the trigger decides when the action should start, while the action system defines what the agent does.
