@@ -42,7 +42,7 @@ Example pattern:
 look at neighboring cells
 check which agents are there
 
-This logic is usually written directly inside "step()".
+This logic is usually written directly inside step().
 
 # 3. Decision
 
@@ -78,16 +78,20 @@ Actions usually change the environment or the agent’s state.
 
 # Notes
 
-In Mesa, these stages are usually all written inside the "step()" method.
+In Mesa, these stages are usually all written inside the step() method.
 
-That means "step()" ends up doing several things at once:
+That means step() ends up doing several things at once:
 
 update state
 observe the environment
 decide what to do
 execute the action
 
-As models grow more complex, "step()" becomes the place where most behavior logic lives.
+As models grow more complex, step() becomes the place where most behavior logic lives.
 
 The layers described above simply help explain this structure.
 They do not replace Mesa’s normal agent execution model.
+
+Recent Mesa version introduce an Actions API which improves the action layer.
+
+The layers described here focus mainly on observation and decision logic, which still tend to be implemented manually inside step().
