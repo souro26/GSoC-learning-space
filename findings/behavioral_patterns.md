@@ -34,3 +34,31 @@ Example:
 3. otherwise -> wander
 
 The order of the conditions decides which behavior wins.
+
+## Pattern 4 — Decision pipelines
+
+Some agents structure their behavior as a sequence of stages.
+
+Example from the BDI model:
+
+beliefs -> goal -> intention → action
+
+In code this ends up looking like:
+
+update_beliefs()
+choose_goal()
+form_intention()
+act()
+
+Even though the logic is conceptually separated, it still runs inside the same step() method.
+
+## Pattern 5 — Beliefs built by scanning the environment
+
+In many models, an agent's beliefs are simply built by looking at nearby cells.
+
+Examples:
+
+- sheep scanning nearby cells to detect wolves
+- BDI agents scanning nearby cells to detect resources
+
+This scanning step happens every simulation tick.

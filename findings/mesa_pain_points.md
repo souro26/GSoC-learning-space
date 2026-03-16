@@ -20,3 +20,22 @@ Most behavior ends up inside the step() method.
 As more rules are added, step() gets longer and harder to read.
 
 There isn’t a simple built-in way to define behavioral rules outside this function.
+
+## Manual decision pipelines
+
+When implementing structured behavior (like BDI), the developer has to manually build the decision flow.
+
+Typical pattern:
+
+update_beliefs()
+choose_goal()
+form_intention()
+act()
+
+Mesa does not provide built-in helpers for this structure, so the entire pipeline has to be written manually.
+
+## Hard to separate behavior stages
+
+Even when behavior has clear stages (beliefs, goals, intentions, actions), they still end up implemented inside "step()".
+
+As behavior grows, this function becomes the place where everything happens, which makes it harder to organize the logic.
