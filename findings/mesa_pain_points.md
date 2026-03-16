@@ -15,8 +15,8 @@ These checks run even if nothing has changed.
 
 ## Behavior logic stuck inside step()
 
-Most behavior ends up inside the "step()" method.
+Most behavior ends up inside the step() method.
 
-As more rules are added, "step()" gets longer and harder to read.
+As more rules are added, step() gets longer and harder to read.
 
 There isn’t a simple built-in way to define behavioral rules outside this function.
