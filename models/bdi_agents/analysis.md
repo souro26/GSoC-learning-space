@@ -50,7 +50,7 @@ All of this logic is implemented inside the agent step() method.
 ## Notes
 
 Even though the behavior is structured conceptually as
-beliefs → goals → intentions → actions,
+beliefs -> goals -> intentions -> actions,
 the implementation still relies on procedural code
 inside step().
 
