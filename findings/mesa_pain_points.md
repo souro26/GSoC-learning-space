@@ -36,6 +36,6 @@ Mesa does not provide built-in helpers for this structure, so the entire pipelin
 
 ## Hard to separate behavior stages
 
-Even when behavior has clear stages (beliefs, goals, intentions, actions), they still end up implemented inside "step()".
+Even when behavior has clear stages (beliefs, goals, intentions, actions), they still end up implemented inside step().
 
 As behavior grows, this function becomes the place where everything happens, which makes it harder to organize the logic.
