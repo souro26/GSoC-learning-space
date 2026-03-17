@@ -1,133 +1,168 @@
 # Primitive Candidates
 
-These are small ideas that might help with behavioral modeling in Mesa.
-They come from patterns and problems seen in the three test models.
-These are just possible helper tools that could make common behavior patterns easier to write.
+These primitives are derived from patterns and pain points observed while implementing three behavioral models (needs-based agents, BDI agents, and RL-style agents) and supported by benchmarks.
+
+The goal is not to introduce a new framework, but to identify small, reusable mechanisms that address specific issues in how behavioral logic is currently written in Mesa.
 
 ## Candidate 1 — Condition Triggers
 
-Many behaviors in the models are activated when some condition becomes true.
+### Problem
 
-Examples:
+Many behaviors are driven by conditions:
 
-energy < threshold -> seek food
-predator nearby -> flee
-resource nearby -> collect
+- energy < threshold → seek food
+- predator nearby → flee
+- resource nearby → collect
 
-Right now these conditions are written inside step() and checked every tick.
+These conditions are currently evaluated every step inside "step()".
 
-Example:
+From benchmarks:
 
-if energy < threshold:
-seek_food()
+- Step complexity grows with number of rules
+- Repeated condition checks occur even when state does not change
+- Trigger vs polling benchmark shows up to ~95% reduction in checks when state changes are sparse
 
-if predator_nearby():
-flee()
+### Idea
 
-A trigger helper could allow registering rules like:
-
-condition -> action
-
-Example idea:
-
-energy < threshold -> seek_food()
-
-This would make behavior rules easier to read and could avoid repeating the same condition checks inside step().
-
-Triggers would mainly help with event-like conditions.
-They would not replace all behavior logic.
-
-## Candidate 2 — Behavior Modules
-
-In several models the step() function ends up containing most of the behavior logic.
-
-Examples:
-
-- predator escape logic
-- food seeking logic
-- resource collection logic
-
-As more behaviors are added, step() becomes longer and harder to follow.
-
-A simple idea is to allow behaviors to be grouped into small reusable modules.
+Introduce a small helper for registering condition → action rules.
 
 Example:
 
-ForagingBehavior
-EscapeBehavior
-CollectionBehavior
+energy < threshold → seek_food()
 
-Agents could attach these modules instead of writing all rules directly inside step().
+Instead of checking the condition every step, it is evaluated only when relevant state changes occur.
 
-This could help with reuse across different agent types.
+### Scope
 
-## Candidate 3 — Observation Helpers
+- Helps with event-like behavior
+- Does not replace all step logic
+- Not useful for continuously changing systems (as shown in dense benchmarks)
 
-Many models repeatedly scan nearby cells.
+## Candidate 2 — Observation Helpers
 
-Examples:
+### Problem
+
+Agents repeatedly scan their local environment:
 
 - sheep scanning for wolves
 - wolves scanning for sheep
-- BDI agents scanning for resources
-- RL agents scanning for resources
+- agents scanning for resources
 
-These checks are written manually each time.
+This logic is:
 
-Example pattern:
+- manually implemented
+- repeated across models
+- tightly coupled with decision logic
 
-for neighbor in cell.neighborhood:
-check agents in neighbor
+### Idea
 
-A small helper for common observation tasks might reduce repeated code.
+Provide small helpers for common observation patterns.
 
-Example idea:
+Example:
 
 observe_neighbors(type=Wolf)
 observe_neighbors(type=Resource)
 
-This would simplify common environment checks.
+### Scope
 
-## Candidate 4 — Decision Pipelines
+- Reduces repeated code
+- Keeps observation separate from decision logic
+- Does not introduce new behavior systems
 
-Some models structure behavior as stages.
+## Candidate 3 — Decision Pipelines
 
-Examples:
+### Problem
 
-BDI model:
+Structured behavior (e.g. BDI) requires staged decision logic:
 
-beliefs -> goal -> intention -> action
+beliefs → goal → intention → action
 
-RL-style model:
-
-observe -> choose action -> act
-
-These pipelines are currently implemented manually inside step().
-
-Example:
+Currently implemented manually inside "step()":
 
 update_beliefs()
 choose_goal()
 form_intention()
 act()
 
-A helper structure for simple decision pipelines might make this pattern clearer.
+From experiments:
+
+- Pipelines improve clarity
+- But introduce overhead and must be manually structured
+
+### Idea
+
+Provide lightweight support for organizing staged decision logic.
+
+This is not a full framework, but a small abstraction to make staged behavior explicit.
+
+### Scope
+
+- Improves readability and structure
+- Does not enforce a specific architecture
+- Does not replace "step()"
+
+## Candidate 4 — Behavior Composition
+
+### Problem
+
+As behaviors increase, "step()" becomes long and hard to maintain.
+
+Observed across models:
+
+- escape logic
+- foraging logic
+- resource handling
+
+All mixed inside a single function.
+
+### Observation
+
+This issue is not caused by lack of modularity features, but by the fact that:
+
+- observation
+- decision
+- triggering
+
+are all embedded inside "step()".
+
+### Idea
+
+By introducing primitives such as:
+
+- condition triggers
+- observation helpers
+- structured decision stages
+
+behavior logic can naturally be separated into smaller units.
+
+### Example:
+
+Foraging behavior and escape behavior can be written independently and combined at the agent level.
+
+Scope
+
+- This is not a new behavior framework
+- Modularity emerges from better separation of concerns
+- Keeps Mesa flexible while improving organization
 
 ## Notes
 
-These ideas are intentionally small.
+These primitives intentionally remain minimal.
 
-Recent versions of Mesa introduce an Actions API, which helps organize how agents perform actions.
+Mesa 4.0 introduces an Actions API, which improves how actions are executed.
 
-The primitives listed here focus on the parts that the Actions system does not address as much:
+The primitives here focus on what is still missing:
 
-- observation of state and environment
-- deciding when actions should start
+- when actions should be triggered (observation)
+- how decisions are structured
 
-For example, triggers could activate actions when certain conditions become true.
+## Example:
 
-Example idea:
+hunger < threshold → eat()
 
-hunger < threshold -> eat()
+In this case:
 
-In this case the trigger decides when the action should start, while the action system defines what the agent does.
+- trigger decides when behavior starts
+- action system defines how it executes
+
+The two are complementary, not competing.
