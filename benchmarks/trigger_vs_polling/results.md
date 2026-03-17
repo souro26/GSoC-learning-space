@@ -48,8 +48,4 @@ Trigger-based evaluation reduces condition checks proportionally to how rarely s
 
 ## Conclusion
 
-Trigger-based systems are effective for models where behavior is driven by infrequent state transitions.
-
-They do not provide benefits in models where state changes continuously.
-
-This explains why trigger-based approaches work well for some behavioral systems but not others.
+Trigger-based systems are effective for models where behavior is driven by infrequent state transitions. They do not provide benefits in models where state changes continuously. This explains why trigger-based approaches work well for some behavioral systems but not others.

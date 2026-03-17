@@ -41,7 +41,4 @@ This experiment shows that:
 
 ## Conclusion
 
-Observation helpers do not introduce new behavior,
-but provide a cleaner way to express common observation patterns.
-
-This supports the need for lightweight observation primitives.
+Observation helpers do not introduce new behavior, but provide a cleaner way to express common observation patterns. This supports the need for lightweight observation primitives.

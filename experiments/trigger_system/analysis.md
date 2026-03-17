@@ -60,8 +60,4 @@ Trigger-based:
 
 ## Conclusion
 
-This experiment shows that trigger-based systems change the execution model, not just performance.
-
-Instead of repeatedly checking conditions every step, evaluation becomes tied to state changes.
-
-This supports the use of triggers as a primitive for handling event-like behavior more directly.
+This experiment shows that trigger-based systems change the execution model, not just performance. Instead of repeatedly checking conditions every step, evaluation becomes tied to state changes. This supports the use of triggers as a primitive for handling event-like behavior more directly.

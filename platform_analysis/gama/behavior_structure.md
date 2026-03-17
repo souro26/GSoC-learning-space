@@ -8,9 +8,7 @@ reflex move {
     ...
 }
 
-These appear declarative but are compiled into executable units.
-
-Execution remains imperative under the hood.
+These appear declarative but are compiled into executable units. Execution remains imperative under the hood.
 
 ## Observation
 
@@ -19,25 +17,17 @@ Agents access environment through:
 - IScope interface
 - spatial and population queries
 
-Observation is:
-
-- embedded in behavior logic
-- not separated as a distinct phase
+Observation is embedded in behavior logic and is not separated as a distinct phase.
 
 ## Activation
 
 Behavior execution is driven by simulation stepping:
 
-stepAgents() → runner.step()
+stepAgents() -> runner.step()
 
-Reflex blocks are evaluated each simulation cycle.
+Reflex blocks are evaluated each simulation cycle. This is still polling-based execution.
 
-→ Still polling-based execution
-
-There is no true:
-
-- state-triggered activation
-- reactive execution model
+There is no true state-triggered activation or reactive execution model.
 
 ## Decision Structure
 
@@ -46,10 +36,7 @@ Behavior logic is expressed via:
 - reflex blocks
 - conditional execution
 
-However:
-
-- no structured decision pipelines
-- no explicit reasoning stages
+However, there are no structured decision pipelines or explicit reasoning stages.
 
 ## Scheduling
 
@@ -97,7 +84,7 @@ However:
 
 ### Contradicts
 
-- “DSL solves behavior modeling” → false  
+- “DSL solves behavior modeling” -> false  
 (GAMA improves syntax, not execution semantics)
 
 ### Missing in Both Systems

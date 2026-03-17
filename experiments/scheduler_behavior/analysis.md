@@ -37,16 +37,11 @@ Fixed Order:
 
 ## Key Insight
 
-Behavior is affected not only by rules, but also by execution order.
-
-Even with identical agents and decision logic, different scheduling leads to different outcomes.
+Behavior is affected not only by rules, but also by execution order. Even with identical agents and decision logic, different scheduling leads to different outcomes.
 
 ## Implication
 
-This introduces a form of order sensitivity:
-
-- Results depend on when agents are evaluated
-- Behavior is not purely determined by rules
+This introduces a form of order sensitivity: Results depend on when agents are evaluated, and Behavior is not purely determined by rules.
 
 ## Conclusion
 

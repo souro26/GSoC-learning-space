@@ -2,18 +2,11 @@
 
 ## Purpose
 
-This model tests agents whose behavior is driven by a simple policy instead of rule checks or staged reasoning.
-
-The goal is to see how policy-style decision making fits into Mesa's agent structure.
+This model tests agents whose behavior is driven by a simple policy instead of rule checks or staged reasoning. The goal is to see how policy-style decision making fits into Mesa's agent structure.
 
 ## Scenario
 
-Agents move on a grid that contains resources.
-
-When an agent detects a nearby resource it collects it.
-If no resource is detected it moves randomly.
-
-The simulation ends when all resources have been collected.
+Agents move on a grid that contains resources. When an agent detects a nearby resource it collects it. If no resource is detected it moves randomly. The simulation ends when all resources have been collected.
 
 ## Decision Structure
 
@@ -42,9 +35,7 @@ Even though this is conceptually a policy-based agent, the implementation still 
 
 ## Notes
 
-Observation of the environment is still done by scanning nearby cells.
-
-Policy selection and action execution are written directly in code.
+Observation of the environment is still done by scanning nearby cells. Policy selection and action execution are written directly in code.
 
 ## Questions Raised
 

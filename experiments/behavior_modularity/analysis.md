@@ -70,11 +70,7 @@ Developers must:
 
 ## Conclusion
 
-Separating behavior improves clarity without changing outcomes.
-
-However, this structure must currently be implemented manually.
-
-This supports the need for small primitives that help separate:
+Separating behavior improves clarity without changing outcomes. However, this structure must currently be implemented manually. This supports the need for small primitives that help separate:
 
 - observation
 - decision

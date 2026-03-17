@@ -10,9 +10,7 @@ ask agents [
     reproduce
 ]
 
-Each behavior is explicitly invoked and executed every tick.
-
-Behavior is procedural, not modular.
+Each behavior is explicitly invoked and executed every tick. Behavior is procedural, not modular.
 
 ## Observation
 
@@ -21,9 +19,7 @@ Agents query environment using:
 - local context (e.g., sheep-here)
 - global agent sets
 
-Observation is embedded within behavior procedures.
-
-No abstraction layer exists.
+Observation is embedded within behavior procedures. No abstraction layer exists.
 
 ## Activation
 
@@ -34,12 +30,9 @@ to go
   tick
 end
 
-→ Pure polling model
+-> Pure polling model
 
-There is no support for:
-
-- condition-triggered execution
-- event-driven activation
+There is no support for condition-triggered execution or event-driven activation.
 
 ## Decision Structure
 
@@ -53,11 +46,7 @@ if prey != nobody [
     eat prey
 ]
 
-There is no abstraction for:
-
-- decision pipelines
-- prioritization
-- staged reasoning
+There is no abstraction for decision pipelines, prioritization, or staged reasoning.
 
 ## Scheduling
 
@@ -76,11 +65,7 @@ Behaviors are:
 - plain procedures
 - tightly coupled to execution flow
 
-There is no support for:
-
-- composable behaviors
-- reusable behavior units
-- dynamic attachment
+There is no support for composable behaviors, reusable behavior units, or dynamic attachment.
 
 ## Strength
 

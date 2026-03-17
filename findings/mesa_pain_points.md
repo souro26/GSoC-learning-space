@@ -15,11 +15,7 @@ These checks run even if nothing has changed.
 
 ## Behavior logic stuck inside step()
 
-Most behavior ends up inside the step() method.
-
-As more rules are added, step() gets longer and harder to read.
-
-There isn’t a simple built-in way to define behavioral rules outside this function.
+Most behavior ends up inside the step() method. As more rules are added, step() gets longer and harder to read. There isn't a simple built-in way to define behavioral rules outside this function.
 
 ## Manual decision pipelines
 
@@ -47,16 +43,7 @@ There is no built-in structure in Mesa for separating policy logic from the agen
 
 ## Behavior depends on scheduler ordering
 
-In step-based models, agents act when the scheduler reaches them.
-
-Execution order affects outcomes.
-
-Fixed ordering can introduce bias.
-
-Random ordering reduces bias but does not remove dependence on order.
-
-This means behavior timing is controlled by scheduler mechanics,
-rather than by actual state changes in the environment.
+In step-based models, agents act when the scheduler reaches them. Execution order affects outcomes. Fixed ordering can introduce bias. Random ordering reduces bias but does not remove dependence on order. This means behavior timing is controlled by scheduler mechanics, rather than by actual state changes in the environment.
 
 ## Note on the Actions API
 

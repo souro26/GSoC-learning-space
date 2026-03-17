@@ -38,12 +38,8 @@ The pipeline introduces extra structure, but also extra overhead.
 
 ## Interpretation
 
-The flat approach keeps everything inside step(), which is simple but mixes all logic together.
-
-The pipeline approach separates decision stages (beliefs, goal, action), which is easier to reason about, but requires more function calls.
+The flat approach keeps everything inside step(), which is simple but mixes all logic together. The pipeline approach separates decision stages (beliefs, goal, action), which is easier to reason about, but requires more function calls.
 
 ## Conclusion
 
-Structured decision pipelines improve clarity of behavior, but require manual implementation and introduce additional overhead.
-
-Mesa does not provide built-in support for this structure, so developers must implement it themselves inside step().
+Structured decision pipelines improve clarity of behavior, but require manual implementation and introduce additional overhead. Mesa does not provide built-in support for this structure, so developers must implement it themselves inside step().

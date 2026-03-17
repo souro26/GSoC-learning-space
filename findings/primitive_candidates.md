@@ -1,12 +1,31 @@
 # Primitive Candidates
 
-These primitives are derived from patterns and pain points observed while implementing three behavioral models (needs-based agents, BDI agents, and RL-style agents) and supported by benchmarks.
+These primitives are derived from patterns and pain points observed while implementing three behavioral models (needs-based agents, BDI agents, and RL-style agents), and are supported by benchmarks and experiments conducted in this repository.
 
-The goal is not to introduce a new framework, but to identify small, reusable mechanisms that address specific issues in how behavioral logic is currently written in Mesa.
+The goal is not to introduce a new framework, but to identify minimal, reusable mechanisms that address specific issues in how behavioral logic is currently expressed in Mesa.
 
-## Candidate 1 — Condition Triggers
+## Core Direction
 
-### Problem
+The primary limitation identified is that behavior execution in Mesa is time-driven rather than condition-driven.
+
+Behavior is evaluated because the scheduler advances, not because relevant conditions become true.
+
+Among the candidates listed below, the central contribution is:
+
+-> State-Triggered Execution (Candidate 1)
+
+The remaining candidates:
+
+- Observation Helpers
+- Decision Pipelines
+- Behavior Composition
+- Evaluation Ordering
+
+operate as supporting abstractions. They improve clarity and structure, but do not address execution semantics directly.
+
+## Candidate 1 — State-Triggered Execution
+
+Problem
 
 Many behaviors are driven by conditions:
 
@@ -14,50 +33,66 @@ Many behaviors are driven by conditions:
 - predator nearby -> flee
 - resource nearby -> collect
 
-These conditions are currently evaluated every step inside "step()".
+These conditions are currently evaluated at every step inside step().
 
 From benchmarks:
 
-- Step complexity grows with number of rules
-- Repeated condition checks occur even when state does not change
-- Trigger vs polling benchmark shows up to ~95% reduction in checks when state changes are sparse
+- Step complexity increases with number of rules
+- Conditions are checked repeatedly even when state does not change
+- Trigger vs polling experiments show significant reduction in checks when changes are sparse
 
-Agent behavior depends on scheduler activation order.
+Additionally, agent behavior depends on scheduler activation order:
 
-Experiments show fixed ordering can bias outcomes.
+- fixed ordering can bias outcomes
+- random ordering only partially mitigates this
 
-Random ordering only partially mitigates this issue.
+Implication
 
-### Implication
+When behavior executes is determined by scheduler timing, not by when conditions become true.
 
-This means that when an agent acts is determined by scheduler order,
-not by when relevant state changes actually occur.
+This creates a mismatch between:
 
-### Idea
+- state changes
+- behavior activation
 
-Introduce a small helper for registering condition -> action rules.
+Idea
+
+Introduce a state-triggered execution mechanism where behavior is evaluated only when relevant state changes occur.
 
 Example:
 
 energy < threshold -> seek_food()
 
-Instead of checking the condition every step, it is evaluated only when relevant state changes occur.
+Instead of checking this every step, the condition is evaluated when energy changes.
 
-Triggers change how behavior is activated.
+Key Property
 
-Instead of agents acting when the scheduler reaches them,
-they react when relevant state changes occur.
+Execution is driven by:
 
-This decouples behavior from scheduler ordering and makes activation state-driven rather than order-driven.
+- state transitions
 
-Triggers are therefore not only an efficiency improvement,
-but also a shift in how agent behavior is scheduled.
+rather than:
 
-### Scope
+- scheduler iteration
+
+This represents a shift in execution semantics, not just an optimization.
+
+Scope
+
+- improves selectivity of behavior execution
+- reduces unnecessary evaluation
+- decouples behavior from scheduler timing
+- does not replace step-based systems entirely
+
+Limitation
+
+This approach is most effective when state changes are relatively sparse.
+
+In systems where relevant variables change every step, the advantage over step-based evaluation is reduced.
 
 ## Candidate 2 — Observation Helpers
 
-### Problem
+Problem
 
 Agents repeatedly scan their local environment:
 
@@ -71,7 +106,7 @@ This logic is:
 - repeated across models
 - tightly coupled with decision logic
 
-### Idea
+Idea
 
 Provide small helpers for common observation patterns.
 
@@ -80,21 +115,23 @@ Example:
 observe_neighbors(type=Wolf)
 observe_neighbors(type=Resource)
 
-### Scope
+Scope
 
-- Reduces repeated code
-- Keeps observation separate from decision logic
-- Does not introduce new behavior systems
+- reduces repeated code
+- separates observation from decision logic
+- does not introduce new execution behavior
+
+This operates at the observation layer and is independent of execution semantics.
 
 ## Candidate 3 — Decision Pipelines
 
-### Problem
+Problem
 
 Structured behavior (e.g. BDI) requires staged decision logic:
 
 beliefs -> goal -> intention -> action
 
-Currently implemented manually inside "step()":
+Currently implemented manually inside step():
 
 update_beliefs()
 choose_goal()
@@ -103,135 +140,127 @@ act()
 
 From experiments:
 
-- Pipelines improve clarity
-- But introduce overhead and must be manually structured
+- improves clarity
+- introduces overhead
+- remains manually structured
 
-### Idea
+Idea
 
 Provide lightweight support for organizing staged decision logic.
 
-This is not a full framework, but a small abstraction to make staged behavior explicit.
+This is not a full framework, but a minimal abstraction to make staged behavior explicit.
 
-This also covers simple policy-based decision making (state -> action),
-by structuring how decisions are computed instead of embedding them directly in the agent.
+Also supports simple policy-based decision making (state -> action) by separating decision computation from execution.
 
-### Scope
+Scope
 
-- Improves readability and structure
-- Does not enforce a specific architecture
-- Does not replace "step()"
+- improves readability and structure
+- does not enforce a specific architecture
+- does not change execution timing
+
+This operates at the decision layer and does not affect when behavior is executed.
 
 ## Candidate 4 — Behavior Composition
 
-### Problem
+Problem
 
-As behaviors increase, "step()" becomes long and hard to maintain.
+As behaviors increase, step() becomes long and difficult to maintain.
 
-Observed across models:
+Observed patterns:
 
 - escape logic
 - foraging logic
 - resource handling
 
-All mixed inside a single function.
+All combined in a single function.
 
-### Observation
+Observation
 
-This issue is not caused by lack of modularity features, but by the fact that:
+This is not simply a lack of modularity features.
+
+It arises because:
 
 - observation
 - decision
-- triggering
+- execution
 
-are all embedded inside "step()".
+are all embedded together.
 
-### Idea
+Idea
 
-By introducing primitives such as:
+By separating:
 
-- condition triggers
-- observation helpers
-- structured decision stages
+- execution (triggers)
+- observation
+- decision
 
-behavior logic can naturally be separated into smaller units.
+behavior can be expressed as smaller, composable units.
 
-This is supported by the behavior_modularity experiment,
-which shows that separating behaviors into modules preserves behavior while improving structure.
+This is supported by the behavior_modularity experiment, where modular and flat implementations produced equivalent results with improved structure.
 
-### Example:
+Scope
 
-Foraging behavior and escape behavior can be written independently and combined at the agent level.
+- improves organization without enforcing a framework
+- enables reuse across agents
+- remains consistent with Mesa’s flexible design
 
-### Scope
+This emerges from improved separation of concerns, not from a new execution model.
 
-- This is not a new behavior framework
-- This improves structure without requiring a separate behavior framework
-- Keeps Mesa flexible while improving organization
+## Candidate 5 — Evaluation Ordering
+
+Problem
+
+From experiments:
+
+- agent execution order affects outcomes
+- fixed ordering introduces bias
+- random ordering changes results but does not eliminate dependence
+
+This means behavior depends not only on rules, but also on when agents are evaluated.
+
+Idea
+
+Provide explicit control over evaluation ordering:
+
+- random
+- fixed
+- priority-based
+
+Scope
+
+- improves transparency of execution timing
+- reduces unintended bias
+- does not replace the scheduler
+
+This is a secondary concern related to scheduler behavior and does not address execution semantics directly.
 
 ## Notes
 
-These primitives intentionally remain minimal.
+These primitives are intentionally minimal.
 
 Mesa 4.0 introduces an Actions API, which improves how actions are executed.
 
 The primitives here focus on what is still missing:
 
-- when actions should be triggered (observation)
-- how decisions are structured
+- when behaviors should be triggered (execution)
+- how decisions are structured (decision)
 
-## Example:
+Example:
 
 hunger < threshold -> eat()
 
 In this case:
 
-- trigger decides when behavior starts
-- action system defines how it executes
+- the trigger determines when behavior starts
+- the action system defines how it executes
 
-The two are complementary, not competing.
+These are complementary.
 
-## Candidate 5 — Evaluation Ordering
+## Mapping: Pain Points → Primitives
 
-### Problem
-
-From experiments:
-
-- Agent execution order affects outcomes
-- Fixed ordering can introduce bias (e.g., starvation)
-- Random ordering produces different results but does not remove dependence on order
-
-This means behavior depends not only on rules, but also on when agents are evaluated.
-
-### Idea
-
-Provide lightweight control over evaluation ordering.
-
-Examples:
-
-- random ordering
-- fixed ordering
-- priority-based ordering
-
-This does not replace the scheduler, but makes ordering effects explicit and controllable.
-
-### Scope
-
-- Helps reduce unintended bias
-- Makes execution timing more transparent
-- Does not introduce a new scheduling system
-
-This complements trigger-based activation by controlling ordering effects when multiple agents are evaluated.
-
-## Mapping: Pain Points -> Primitives
-
-- Repeated condition checks -> Condition Triggers
-
+- Repeated condition checks -> State-Triggered Execution
 - Behavior logic inside step() -> Decision Pipelines + Behavior Composition
-
 - Manual decision pipelines -> Decision Pipelines
-
 - Policy and decision logic inside agents -> Decision Pipelines
-
 - Repeated environment scanning -> Observation Helpers
-
-- Behavior depends on scheduler ordering -> Evaluation Ordering + Condition Triggers
+- Behavior depends on scheduler ordering -> Evaluation Ordering + State-Triggered Execution

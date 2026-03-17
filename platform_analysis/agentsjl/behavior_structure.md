@@ -6,9 +6,7 @@ Behavior is defined as external functions:
 
 agent_step!(agent, model)
 
-This separates behavior from agent structure via multiple dispatch.
-
-However, behavior remains imperative and monolithic, expressed through if/else logic.
+This separates behavior from agent structure via multiple dispatch. However, behavior remains imperative and monolithic, expressed through if/else logic.
 
 ## Observation
 
@@ -17,9 +15,7 @@ Agents access environment state via:
 - direct model queries
 - helper functions (e.g., nearby_agents)
 
-Observation is embedded inside decision logic.
-
-There is no explicit perception layer.
+Observation is embedded inside decision logic. There is no explicit perception layer.
 
 ## Activation
 
@@ -30,7 +26,7 @@ All agents are evaluated every step:
 for agent in agents:
     agent_step!(agent, model)
 
-→ Pure polling
+This is pure polling.
 
 ### Event-based (EventQueueABM)
 
@@ -39,10 +35,7 @@ Supports:
 - time-based scheduling
 - probabilistic events
 
-However:
-
-→ Events are time-driven, not state-driven  
-→ Behavior logic still executes imperatively
+However: Events are time-driven, not state-driven, and behavior logic still executes imperatively.
 
 ## Decision Structure
 
@@ -65,21 +58,11 @@ Supports:
 - deterministic order
 - event queues (continuous time)
 
-However:
-
-→ Execution order affects behavior  
-→ No abstraction for dependency control  
-
-
-Behavior is reusable at function level:
+However: Execution order affects behavior, and there is no abstraction for dependency control.
 
 eat!(), move!(), etc.
 
-But:
-
-- no behavior abstraction
-- no composition system
-- no lifecycle control
+Behavior is reusable at function level, but there is no behavior abstraction layer, composition system, or lifecycle control.
 
 ## Strength
 
@@ -104,7 +87,7 @@ But:
 
 ### Contradicts
 
-- “Mesa lacks events” → false  
+- “Mesa lacks events” -> false  
 (Agents.jl already supports this)
 
 ### Missing in Both Systems

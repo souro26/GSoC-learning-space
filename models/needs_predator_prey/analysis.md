@@ -1,8 +1,8 @@
 # Needs-Based Predator–Prey Behavioral Model
 
 # Purpose
-This model explores how Mesa handles agents whose behavior is driven by internal needs and simple rule-based decisions.
-The goal is not to build a realistic ecological simulation but to observe how behavioral rules are implemented in Mesa and how the code structure scales as behaviors increase.
+
+This model explores how Mesa handles agents whose behavior is driven by internal needs and simple rule-based decisions. The goal is not to build a realistic ecological simulation but to observe how behavioral rules are implemented in Mesa and how the code structure scales as behaviors increase.
 
 Agents
 Sheep

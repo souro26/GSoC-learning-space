@@ -34,13 +34,7 @@ Rules: 20 -> 2000000 checks
 
 ## Observations
 
-In full scan mode, the number of condition checks increases linearly with the number of rules.
-
-Each additional rule adds a fixed amount of work every step.
-
-In early exit mode, the number of checks still increases as rules increase, but the growth slows down due to early termination.
-
-However, even with early exit, adding more rules still increases the total number of evaluations.
+In full scan mode, the number of condition checks increases linearly with the number of rules. Each additional rule adds a fixed amount of work every step. In early exit mode, the number of checks still increases as rules increase, but the growth slows down due to early termination. However, even with early exit, adding more rules still increases the total number of evaluations.
 
 ## Interpretation
 
