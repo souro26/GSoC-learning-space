@@ -82,12 +82,14 @@ Across all analyzed systems, the following abstraction is missing:
 Instead, all systems assume evaluate behavior as part of global time progression. This reveals a fundamental gap: there is no formal model for condition-driven behavior execution.
 
 
-## 7. Direction for Improvement
+## 7. Direction
 
-The core issue is not syntax or API design. It is the execution model. A better system should allow:
+The limitation identified is not related to syntax, APIs, or individual features. It is rooted in how behavior execution is defined.
 
-- behaviors to run only when their conditions become true
-- execution to be driven by state changes, not just time steps
-- behavior logic to be decoupled from the agent step loop
+Addressing this requires introducing an execution model where:
 
-This is the gap this project aims to address.
+- behavior activation is driven by state changes
+- evaluation is selective rather than global
+- execution is decoupled from scheduler iteration
+
+This forms the basis for exploring state-triggered execution mechanisms.
