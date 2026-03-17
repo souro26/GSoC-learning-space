@@ -1,97 +1,160 @@
-# Behavior Layers
+# Behavioral Architecture
 
-While building the test models, a similar structure kept showing up in how agents behave.
+## Purpose
 
-The models were different (needs-based, BDI, policy-based), but the agent logic usually followed the same stages.
+This document organizes the behavioral system into clear layers. The goal is not to define a full implementation, but to separate concerns and clarify where each responsibility belongs. This prevents mixing execution, decision logic, and structure into a single mechanism.
 
-These layers are a way to describe what the agent code is doing in existing Mesa models. This pattern appeared across the three models built in this repository.
+## Overview
 
-## 1. State
+The system is divided into three layers:
 
-Agents keep track of internal variables and information about their environment.
+1. Execution Layer (when behavior runs)
+2. Decision Layer (how behavior is chosen)
+3. Structure Layer (how behavior is organized)
 
-Examples from the models:
+These layers are independent but interact through well-defined boundaries.
 
-energy
-location
-resources collected
-nearby objects
+## 1. Execution Layer
 
-In Mesa this is usually stored as normal attributes on the agent.
+### Responsibility
 
-Example variables used in the models:
+Controls when behavior is evaluated and executed.
 
-energy
-inventory
-resources_collected
+### Problem in current systems
 
-## 2. Observation
+- behavior is evaluated every step
+- activation is tied to scheduler iteration
+- no selective execution
 
-Agents check their surroundings or internal state.
+### Direction
 
-Examples from the models:
+Introduce condition-driven activation. Behavior should execute only when relevant state changes occur.
 
-checking if a predator is nearby
-checking if energy is below a threshold
-checking if resources exist in nearby cells
+### Core concept
 
-Most of the time this is done by scanning neighboring cells.
+State-triggered evaluation:
 
-Example pattern:
+- conditions are registered explicitly
+- dependencies define when they should be re-evaluated
+- activation occurs when a condition becomes true
 
-look at neighboring cells
-check which agents are there
+### Important constraint
 
-This logic is usually written directly inside step().
+This layer does NOT define:
 
-## 3. Decision
+- what behavior does
+- how decisions are made
 
-After observing the state, the agent decides what to do.
+It only determines when execution happens.
 
-Different models handled this differently.
+## 2. Decision Layer
+
+### Responsibility
+
+Defines how an agent chooses what to do.
+
+### Current situation
+
+- decision logic is embedded inside step()
+- pipelines are manually implemented
+- no explicit structure
+
+### Direction
+
+Introduce structured decision flow.
 
 Examples:
 
-Predator–prey model
-if predator nearby → flee
-if hungry → find food
+- staged pipelines (belief -> goal -> action)
+- policy-based selection
+- priority-based behavior selection
 
-BDI model
-beliefs → goal → intention
+### Key idea
 
-Policy model
-state → action
+Decision logic should be:
 
-Even though the approaches are different, this stage always exists.
+- explicit
+- modular
+- independent from execution timing
 
-# 4. Action
+### Important constraint
 
-Finally the agent performs an action.
+This layer does NOT control:
 
-Examples from the models:
+- when behavior runs
+- how execution is scheduled
 
-move to another cell
-collect a resource
-flee from a predator
+It only defines how decisions are computed.
 
-Actions usually change the environment or the agent’s state.
+## 3. Structure Layer
 
-# Notes
+### Responsibility
 
-In Mesa, these stages are usually all written inside the step() method.
+Defines how behaviors are organized and composed.
 
-That means step() ends up doing several things at once:
+### Current situation
 
-update state
-observe the environment
-decide what to do
-execute the action
+- logic is embedded inside agent classes
+- behaviors are not reusable units
+- no clean composition mechanism
 
-As models grow more complex, step() becomes the place where most behavior logic lives.
+### Direction
 
-The layers described above simply help explain this structure.
-They do not replace Mesa’s normal agent execution model.
+Introduce modular behavior units.
 
-Recent Mesa version introduce an Actions API which improves the action layer.
+Examples:
 
-The layers described here focus mainly on observation and decision logic, which still tend to be implemented manually inside step().
+- attachable behavior modules
+- reusable behavior components
+- separation of concerns across behaviors
+
+### Key idea
+
+Behavior should be:
+
+- composable
+- reusable
+- independently defined
+
+### Important constraint
+
+This layer does NOT define:
+
+- execution timing
+- decision semantics
+
+It only defines how behavior is structured.
+
+## Layer Interaction
+
+The layers interact as follows:
+
+Execution Layer -> determines when evaluation happens
+
+Decision Layer -> determines what action is selected
+
+Structure Layer -> determines how behavior is organized
+
+This separation ensures:
+
+- execution is not mixed with decision logic
+- decision logic is not tied to structure
+- behavior remains modular and extensible
+
+## Key Insight
+
+Most current systems collapse all three layers into a single step() method.
+
+This results in:
+
+- repeated condition checks
+- tightly coupled logic
+- lack of control over execution
+
+Separating these layers provides a clearer model for:
+
+- when behavior runs
+- how decisions are made
+- how behavior is organized
+
+This layered view serves as a foundation for exploring improved execution mechanisms without forcing a monolithic framework.
