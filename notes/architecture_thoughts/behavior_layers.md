@@ -6,7 +6,7 @@ The models were different (needs-based, BDI, policy-based), but the agent logic 
 
 These layers are a way to describe what the agent code is doing in existing Mesa models. This pattern appeared across the three models built in this repository.
 
-# 1. State
+## 1. State
 
 Agents keep track of internal variables and information about their environment.
 
@@ -25,7 +25,7 @@ energy
 inventory
 resources_collected
 
-# 2. Observation
+## 2. Observation
 
 Agents check their surroundings or internal state.
 
@@ -44,7 +44,7 @@ check which agents are there
 
 This logic is usually written directly inside step().
 
-# 3. Decision
+## 3. Decision
 
 After observing the state, the agent decides what to do.
 
