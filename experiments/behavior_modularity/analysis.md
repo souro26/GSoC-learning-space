@@ -42,9 +42,7 @@ Modular:
 
 This confirms that both approaches implement the same logic.
 
----
-
-Differences
+## Differences
 
 Flat approach:
 
