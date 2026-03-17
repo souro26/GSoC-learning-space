@@ -1,56 +1,95 @@
 # Mesa Pain Points
 
-These are things that felt awkward while implementing the models. They describe the friction points that became the basis for the primitive candidates.
+These issues were observed while implementing behavioral models. They are not isolated inconveniences, but symptoms of how behavior execution is structured in Mesa.
 
 ## Repeated condition checks
 
-Agents check the same conditions every step.
+Agents repeatedly evaluate the same conditions every step.
 
 Example:
 
 predator_nearby()
 energy < threshold
 
-These checks run even if nothing has changed.
+These checks run even when no relevant state has changed. This happens because there is no mechanism for dependency-aware execution. The system does not track which variables affect which behaviors, so all conditions must be evaluated unconditionally.
 
-## Behavior logic stuck inside step()
+## Behavior logic accumulates inside step()
 
-Most behavior ends up inside the step() method. As more rules are added, step() gets longer and harder to read. There isn't a simple built-in way to define behavioral rules outside this function.
+Most behavior is implemented inside the step() method.
+
+As models grow:
+
+- step() becomes longer
+- logic becomes harder to maintain
+- responsibilities become mixed
+
+This is not just a structural issue. It happens because execution is tied to the scheduler, and there is no way to define independently activated behaviors. All logic must therefore be placed inside a single entry point.
 
 ## Manual decision pipelines
 
-When implementing structured behavior like BDI, the developer has to manually build the decision flow.
-
-Typical pattern:
+Structured behaviors (e.g. BDI) require staged logic:
 
 update_beliefs()
 choose_goal()
 form_intention()
 act()
 
-Mesa does not provide built-in helpers for this structure, so the entire pipeline has to be written manually.
+Mesa provides no abstraction for this. Developers must manually define and maintain the pipeline. Even though the logic is conceptually staged, execution remains part of the same step loop, with no control over when each stage should run.
 
-## Policy and decision logic inside agents
+## Policy and decision logic tightly coupled to agents
 
-Even when using a policy-based approach, both the decision logic and policy still end up written inside the agent class.
-
-Example from the RL-style model:
+Policy-based approaches still embed logic inside the agent:
 
 state = observe()
 action = policy(state)
 
-There is no built-in structure in Mesa for separating policy logic from the agent implementation.
+There is no mechanism to separate:
+
+- policy definition
+- policy execution
+- activation conditions
+
+As a result, decision logic remains tightly coupled to the agent’s execution cycle.
 
 ## Behavior depends on scheduler ordering
 
-In step-based models, agents act when the scheduler reaches them. Execution order affects outcomes. Fixed ordering can introduce bias. Random ordering reduces bias but does not remove dependence on order. This means behavior timing is controlled by scheduler mechanics, rather than by actual state changes in the environment.
+Agents act when the scheduler reaches them.
 
-## Note on the Actions API
+This introduces:
 
-Mesa 4.0.0a0 introduces an experimental Actions API which helps separate timed action logic from the agent step() method.
+- ordering bias
+- non-deterministic outcomes (under random scheduling)
 
-This improves how actions are defined, reused, and interrupted with progress tracking.
+Execution timing is determined by scheduler mechanics, not by when relevant state changes occur.
 
-However, observation and decision logic are still usually implemented manually inside step().
+## Actions API does not address decision execution
 
-The models in this repository focus on those parts of agent behavior.
+Mesa 4.0 introduces an experimental Actions API.
+
+It improves:
+
+- action definition
+- action reuse
+- interruptible execution
+
+However:
+
+- it focuses on how actions execute over time
+- not when behaviors should be triggered
+
+Observation and decision logic remain inside step().
+
+As a result, the core execution model is unchanged.
+
+## Root Cause
+
+The issues above are not independent. They arise from a shared limitation: behavior execution is tied to time-based scheduling rather than state changes.
+
+As a result:
+
+- all conditions are evaluated every step
+- behavior cannot be selectively activated
+- logic accumulates inside a single execution point
+- execution timing depends on scheduler order
+
+This indicates that the limitation is not at the level of APIs, but at the level of execution semantics.

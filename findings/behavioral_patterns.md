@@ -1,97 +1,101 @@
 # Behavioral Patterns
 
-These patterns showed up while building the test models (needs-based agents, BDI agents, and RL-style agents).
+## Framing
 
-They describe the common ways behavior ends up being structured in Mesa models, and form the basis for identifying pain points and candidate improvements.
+These patterns describe how behavior is actually expressed in Mesa models. They are not independent design choices. They emerge from the underlying execution model: behavior is evaluated on every step. As a result, many of these patterns exist not because they are ideal, but because there is no mechanism for condition-driven execution.
 
 ## Pattern 1 — Threshold rules
 
-A lot of behaviors are triggered when some internal value crosses a threshold.
+Many behaviors are triggered when an internal value crosses a threshold.
 
-Example from the predator–prey model:
+Example:
 
 energy < threshold -> look for food
 
-This is usually written directly inside step() as a simple if check.
+This is typically implemented inside "step()" using an "if" condition. This pattern exists because there is no way to register conditions as independent activation rules.
+
+As a result, threshold checks are evaluated every step,
+even when the underlying state has not changed.
 
 ## Pattern 2 — Scanning nearby cells
 
-Agents often look at nearby cells to decide what to do.
+Agents repeatedly scan their local environment to make decisions.
 
 Examples:
 
 - sheep check if a wolf is nearby
 - wolves check if sheep are nearby
 
-This check happens every step.
+These checks run every step. This is not an inherent requirement of the model, but a consequence of the lack of selective evaluation. Since there is no mechanism to react to environment changes, agents must re-scan the environment on every iteration.
 
 ## Pattern 3 — Behavior priority through code order
 
-Agent decisions are usually written as a sequence of if statements.
-
-Example:
+Agent decisions are often written as sequential "if" statements:
 
 1. predator nearby -> flee
 2. hungry -> find food
 3. otherwise -> wander
 
-The order of the conditions decides which behavior wins.
+The order of conditions determines which behavior executes. This pattern emerges because there is no explicit mechanism for behavior prioritization or conflict resolution. Priority is implicitly encoded in code structure, making behavior harder to reason about and modify.
 
 ## Pattern 4 — Decision pipelines
 
-Some agents structure their behavior as a sequence of stages.
-
-Example from the BDI model:
+Some models structure behavior into stages:
 
 beliefs -> goal -> intention -> action
 
-In code this ends up looking like:
+In code:
 
 update_beliefs()
 choose_goal()
 form_intention()
 act()
 
-Even though the logic is conceptually separated, it still runs inside the same step() method.
+Although conceptually modular, all stages are executed inside the same "step()" function. This pattern shows an attempt to introduce structure, but execution remains tied to the global step loop. There is no support for selectively activating stages based on relevant state changes.
 
-## Pattern 5 — Beliefs built by scanning the environment
+## Pattern 5 — Beliefs built through repeated scanning
 
-In many models, an agent's beliefs are simply built by looking at nearby cells.
+Agent beliefs are often constructed by scanning the environment:
 
-Examples:
+- sheep detecting wolves nearby
+- BDI agents detecting resources
 
-- sheep scanning nearby cells to detect wolves
-- BDI agents scanning nearby cells to detect resources
-
-This scanning step happens every simulation tick.
+This process happens every step. This reflects the absence of an observation layer that can be updated based on changes in the environment. Instead, perception is recomputed repeatedly, even when no relevant changes have occurred.
 
 ## Pattern 6 — Policy-based decisions
 
-Some agents choose actions based on a simple policy.
-
-Example from the RL-style model:
+Agents may use policies:
 
 state -> action
+
+Example:
 
 resource nearby -> collect
 otherwise -> move
 
-The policy is usually written as a function that takes the current state and returns an action.
+The policy is typically implemented as a function, but is still evaluated every step. There is no mechanism to trigger policy evaluation only when the relevant state changes.
 
-## Pattern 7 — Observe -> decide -> act loop
+## Pattern 7 — Observe → decide → act loop
 
-Many agents follow a simple loop each step:
+Many agents follow:
 
-observe environment
-decide what to do
-execute the action
+observe → decide → act
 
-Example from the RL-style model:
+Example:
 
 state = observe()
 action = policy(state)
 act(action)
 
+This structure is conceptually clean, but execution remains unconditional. All stages are executed every step, regardless of whether new information is available.
+
 ## Pattern 8 — Activation depends on scheduler order
 
-Agents are executed in a specific order each step. This order affects outcomes (not just behavior rules). Earlier agents may act first and gain advantage. Later agents may miss opportunities (e.g., starvation). This shows that behavior depends not only on rules, but also on when agents are evaluated.
+Agents are executed in a specific order each step.
+
+This affects outcomes:
+
+- earlier agents may act first and gain advantage
+- later agents may miss opportunities
+
+This shows that behavior depends not only on rules, but on when agents are evaluated. Since activation is tied to the scheduler, timing is not driven by state changes, but by execution order.
