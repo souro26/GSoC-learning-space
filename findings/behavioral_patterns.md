@@ -1,6 +1,8 @@
 # Behavioral Patterns
 
-These patterns showed up while building the test models.
+These patterns showed up while building the test models (needs-based agents, BDI agents, and RL-style agents).
+
+They describe the common ways behavior ends up being structured in Mesa models, and form the basis for identifying pain points and candidate improvements.
 
 ## Pattern 1 — Threshold rules
 

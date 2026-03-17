@@ -1,6 +1,6 @@
 # Mesa Pain Points
 
-These are things that felt awkward while implementing the models.
+These are things that felt awkward while implementing the models. They describe the friction points that became the basis for the primitive candidates.
 
 ## Repeated condition checks
 
