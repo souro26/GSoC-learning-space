@@ -10,9 +10,9 @@ The goal is not to introduce a new framework, but to identify small, reusable me
 
 Many behaviors are driven by conditions:
 
-- energy < threshold → seek food
-- predator nearby → flee
-- resource nearby → collect
+- energy < threshold -> seek food
+- predator nearby -> flee
+- resource nearby -> collect
 
 These conditions are currently evaluated every step inside "step()".
 
@@ -24,11 +24,11 @@ From benchmarks:
 
 ### Idea
 
-Introduce a small helper for registering condition → action rules.
+Introduce a small helper for registering condition -> action rules.
 
 Example:
 
-energy < threshold → seek_food()
+energy < threshold -> seek_food()
 
 Instead of checking the condition every step, it is evaluated only when relevant state changes occur.
 
@@ -75,7 +75,7 @@ observe_neighbors(type=Resource)
 
 Structured behavior (e.g. BDI) requires staged decision logic:
 
-beliefs → goal → intention → action
+beliefs -> goal -> intention -> action
 
 Currently implemented manually inside "step()":
 
@@ -158,7 +158,7 @@ The primitives here focus on what is still missing:
 
 ## Example:
 
-hunger < threshold → eat()
+hunger < threshold -> eat()
 
 In this case:
 
@@ -166,3 +166,15 @@ In this case:
 - action system defines how it executes
 
 The two are complementary, not competing.
+
+## Mapping: Pain Points -> Primitives
+
+- Repeated condition checks -> Condition Triggers
+
+- Behavior logic inside step() -> Decision Pipelines + Behavior Composition
+
+- Manual decision pipelines -> Decision Pipelines
+
+- Policy and decision logic inside agents -> Decision Pipelines
+
+- Repeated environment scanning -> Observation Helpers

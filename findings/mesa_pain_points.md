@@ -34,15 +34,9 @@ act()
 
 Mesa does not provide built-in helpers for this structure, so the entire pipeline has to be written manually.
 
-## Hard to separate behavior stages
+## Policy and decision logic inside agents
 
-Even when behavior has clear stages (beliefs, goals, intentions, actions), they still end up implemented inside step().
-
-As behavior grows, this function becomes the place where everything happens, which makes it harder to organize the logic.
-
-## Policy logic inside agents
-
-Even when using a policy-based approach, the policy still ends up written inside the agent class.
+Even when using a policy-based approach, both the decision logic and policy still end up written inside the agent class.
 
 Example from the RL-style model:
 
