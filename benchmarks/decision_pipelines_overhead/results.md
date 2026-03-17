@@ -4,7 +4,7 @@
 
 Two approaches were compared:
 
-1. Flat agent using if/elif rules inside "step()"
+1. Flat agent using if/elif rules inside step()
 2. Pipeline agent using stages:
    beliefs -> goal -> action
 
@@ -38,7 +38,7 @@ The pipeline introduces extra structure, but also extra overhead.
 
 ## Interpretation
 
-The flat approach keeps everything inside "step()", which is simple but mixes all logic together.
+The flat approach keeps everything inside step(), which is simple but mixes all logic together.
 
 The pipeline approach separates decision stages (beliefs, goal, action), which is easier to reason about, but requires more function calls.
 
@@ -46,4 +46,4 @@ The pipeline approach separates decision stages (beliefs, goal, action), which i
 
 Structured decision pipelines improve clarity of behavior, but require manual implementation and introduce additional overhead.
 
-Mesa does not provide built-in support for this structure, so developers must implement it themselves inside "step()".
+Mesa does not provide built-in support for this structure, so developers must implement it themselves inside step().
