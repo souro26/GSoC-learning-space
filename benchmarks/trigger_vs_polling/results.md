@@ -1,45 +1,55 @@
-# Trigger vs Polling Benchmarks
+# Trigger vs Polling
 
 ## Setup
 
-Three scenarios were tested:
+We compare two approaches:
 
-- Schelling model
-- Wolf–Sheep model
-- Synthetic sparse-event model
+- Polling: condition checked every step
+- Trigger-based: condition checked only when state changes
 
-Goal: compare condition checking using polling vs triggers.
+Simulation:
+
+- 100 agents
+- 1000 steps
+
+We vary how often the agent’s state changes.
 
 ## Results
 
-Schelling
+Varying state change rate
 
-Small improvement (5–6%).
+Change rate| Polling checks| Trigger checks| Reduction
+5%| 100000| 4975| 95.03%
+10%| 100000| 9960| 90.04%
+20%| 100000| 20181| 79.82%
+50%| 100000| 50039| 49.96%
+80%| 100000| 79891| 20.11%
 
-Conditions still need to be checked often, so triggers don’t help much.
+## Dense system (always changing)
 
-## Wolf–Sheep
+Case| Polling checks| Trigger checks
+Wolf–Sheep-like| 100000| 100000
 
-No improvement (sometimes slightly worse).
+## Observations
 
-Agents interact continuously, so conditions are always relevant.
+- Polling always evaluates conditions every step.
+- Trigger-based evaluation runs only when state changes.
+- As state changes become rarer, trigger checks drop significantly.
+- When state changes every step, triggers provide no benefit.
 
-## Sparse-event model
+## Key takeaway
 
-Large improvement (90%+ fewer evaluations).
+Trigger-based evaluation reduces condition checks proportionally to how rarely state changes occur.
 
-Most agents don’t need to react every step, so triggers avoid unnecessary checks.
+- At 5% change rate -> 95% reduction
+- At 50% change rate -> 50% reduction
+- At 80% change rate -> 20% reduction
+- At 100% change rate -> no reduction
 
-## Takeaway
+## Conclusion
 
-Triggers help when:
+Trigger-based systems are effective for models where behavior is driven by infrequent state transitions.
 
-- behavior depends on rare events
-- conditions don’t change often
+They do not provide benefits in models where state changes continuously.
 
-Triggers don’t help much when:
-
-- interactions are continuous
-- conditions are almost always true
-
-So triggers are useful, but only for certain types of models.
+This explains why trigger-based approaches work well for some behavioral systems but not others.

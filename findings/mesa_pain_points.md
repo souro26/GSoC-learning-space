@@ -53,9 +53,9 @@ There is no built-in structure in Mesa for separating policy logic from the agen
 
 ## Note on the Actions API
 
-Recent versions of Mesa introduce an Actions API which helps separate action logic from the agent step() method.
+Mesa 4.0.0a0 introduces an experimental Actions API which helps separate timed action logic from the agent step() method.
 
-This improves how actions are defined and reused.
+This improves how actions are defined, reused, and interrupted with progress tracking.
 
 However, observation and decision logic are still usually implemented manually inside step().
 
