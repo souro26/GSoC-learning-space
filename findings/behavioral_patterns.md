@@ -91,3 +91,15 @@ Example from the RL-style model:
 state = observe()
 action = policy(state)
 act(action)
+
+## Pattern 8 — Activation depends on scheduler order
+
+Agents are executed in a specific order each step.
+
+This order affects outcomes (not just behavior rules).
+
+Earlier agents may act first and gain advantage.
+
+Later agents may miss opportunities (e.g., starvation).
+
+This shows that behavior depends not only on rules, but also on when agents are evaluated.

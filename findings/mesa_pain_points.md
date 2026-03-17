@@ -45,6 +45,19 @@ action = policy(state)
 
 There is no built-in structure in Mesa for separating policy logic from the agent implementation.
 
+## Behavior depends on scheduler ordering
+
+In step-based models, agents act when the scheduler reaches them.
+
+Execution order affects outcomes.
+
+Fixed ordering can introduce bias.
+
+Random ordering reduces bias but does not remove dependence on order.
+
+This means behavior timing is controlled by scheduler mechanics,
+rather than by actual state changes in the environment.
+
 ## Note on the Actions API
 
 Mesa 4.0.0a0 introduces an experimental Actions API which helps separate timed action logic from the agent step() method.

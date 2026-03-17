@@ -22,6 +22,17 @@ From benchmarks:
 - Repeated condition checks occur even when state does not change
 - Trigger vs polling benchmark shows up to ~95% reduction in checks when state changes are sparse
 
+Agent behavior depends on scheduler activation order.
+
+Experiments show fixed ordering can bias outcomes.
+
+Random ordering only partially mitigates this issue.
+
+### Implication
+
+This means that when an agent acts is determined by scheduler order,
+not by when relevant state changes actually occur.
+
 ### Idea
 
 Introduce a small helper for registering condition -> action rules.
@@ -32,11 +43,17 @@ energy < threshold -> seek_food()
 
 Instead of checking the condition every step, it is evaluated only when relevant state changes occur.
 
-### Scope
+Triggers change how behavior is activated.
 
-- Helps with event-like behavior
-- Does not replace all step logic
-- Not useful for continuously changing systems (as shown in dense benchmarks)
+Instead of agents acting when the scheduler reaches them,
+they react when relevant state changes occur.
+
+This decouples behavior from scheduler ordering and makes activation state-driven rather than order-driven.
+
+Triggers are therefore not only an efficiency improvement,
+but also a shift in how agent behavior is scheduled.
+
+### Scope
 
 ## Candidate 2 — Observation Helpers
 
@@ -95,6 +112,9 @@ Provide lightweight support for organizing staged decision logic.
 
 This is not a full framework, but a small abstraction to make staged behavior explicit.
 
+This also covers simple policy-based decision making (state -> action),
+by structuring how decisions are computed instead of embedding them directly in the agent.
+
 ### Scope
 
 - Improves readability and structure
@@ -135,14 +155,17 @@ By introducing primitives such as:
 
 behavior logic can naturally be separated into smaller units.
 
+This is supported by the behavior_modularity experiment,
+which shows that separating behaviors into modules preserves behavior while improving structure.
+
 ### Example:
 
 Foraging behavior and escape behavior can be written independently and combined at the agent level.
 
-Scope
+### Scope
 
 - This is not a new behavior framework
-- Modularity emerges from better separation of concerns
+- This improves structure without requiring a separate behavior framework
 - Keeps Mesa flexible while improving organization
 
 ## Notes
@@ -167,6 +190,38 @@ In this case:
 
 The two are complementary, not competing.
 
+## Candidate 5 — Evaluation Ordering
+
+### Problem
+
+From experiments:
+
+- Agent execution order affects outcomes
+- Fixed ordering can introduce bias (e.g., starvation)
+- Random ordering produces different results but does not remove dependence on order
+
+This means behavior depends not only on rules, but also on when agents are evaluated.
+
+### Idea
+
+Provide lightweight control over evaluation ordering.
+
+Examples:
+
+- random ordering
+- fixed ordering
+- priority-based ordering
+
+This does not replace the scheduler, but makes ordering effects explicit and controllable.
+
+### Scope
+
+- Helps reduce unintended bias
+- Makes execution timing more transparent
+- Does not introduce a new scheduling system
+
+This complements trigger-based activation by controlling ordering effects when multiple agents are evaluated.
+
 ## Mapping: Pain Points -> Primitives
 
 - Repeated condition checks -> Condition Triggers
@@ -178,3 +233,5 @@ The two are complementary, not competing.
 - Policy and decision logic inside agents -> Decision Pipelines
 
 - Repeated environment scanning -> Observation Helpers
+
+- Behavior depends on scheduler ordering -> Evaluation Ordering + Condition Triggers
