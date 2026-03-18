@@ -23,3 +23,7 @@ if __name__ == "__main__":
     print("\n=== Trigger Flow ===")
     for line in trigger.log:
         print(line)
+        
+    print("\n=== Summary ===")
+    print(f"Polling condition checks: {polling.condition_checks}")
+    print(f"Trigger condition checks: {trigger.condition_checks}")
