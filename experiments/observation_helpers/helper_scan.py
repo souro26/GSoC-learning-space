@@ -14,7 +14,7 @@ def observe_neighbors(position, grid_size):
     return neighbors
 
 
-def observe_type(neighbors, resources):
+def count_resources(neighbors, resources):
     return sum(1 for n in neighbors if n in resources)
 
 
@@ -25,22 +25,31 @@ class HelperAgent:
 
     def scan_for_resource(self, resources):
         neighbors = observe_neighbors(self.position, self.grid_size)
-        return observe_type(neighbors, resources)
+        return neighbors
 
 
 class HelperSimulation:
-    def __init__(self, num_agents=5):
-        self.agents = [HelperAgent() for _ in range(num_agents)]
-        self.resources = {(random.randint(0, 4), random.randint(0, 4)) for _ in range(5)}
-        self.total_scans = 0
+    def __init__(self, resources, positions):
+        self.agents = [HelperAgent() for _ in positions]
+
+        for agent, pos in zip(self.agents, positions):
+            agent.position = pos
+
+        self.resources = resources
+        self.total_checks = 0
 
     def step(self):
         for agent in self.agents:
-            found = agent.scan_for_resource(self.resources)
-            self.total_scans += 1
+            neighbors = agent.scan_for_resource(self.resources)
+
+            # count actual work (number of neighbor checks)
+            self.total_checks += len(neighbors)
+
+            # perform observation (not used, but keeps logic consistent)
+            _ = count_resources(neighbors, self.resources)
 
     def run(self, steps=20):
         for _ in range(steps):
             self.step()
 
-        return self.total_scans
+        return self.total_checks

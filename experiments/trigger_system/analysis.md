@@ -45,19 +45,32 @@ Step 3: skipped
 - Polling performs evaluation continuously, regardless of whether state changes.
 - Trigger-based evaluation skips steps where no relevant change occurs.
 - Evaluation is tied to state transitions instead of simulation time.
+- Both approaches produce equivalent behavior, ensuring that differences arise from evaluation strategy rather than logic.
+- Trigger-based evaluation assumes knowledge of which state variables affect each condition (dependency awareness).
 
 ## Key Difference
 
 Polling:
 
-- Time-driven evaluation
-- Every step -> evaluate conditions
+- evaluation triggered by scheduler iteration
+- conditions evaluated regardless of relevance
+- execution frequency tied to time steps
 
 Trigger-based:
 
-- State-driven evaluation
-- Only evaluate when state changes
+- evaluation triggered by state changes
+- conditions evaluated only when relevant variables change
+- execution frequency tied to system state
+
+This represents a shift from unconditional evaluation to dependency aware evaluation.
 
 ## Conclusion
 
-This experiment shows that trigger-based systems change the execution model, not just performance. Instead of repeatedly checking conditions every step, evaluation becomes tied to state changes. This supports the use of triggers as a primitive for handling event-like behavior more directly.
+This experiment shows that polling evaluates behavioral conditions as a function of time progression, not state changes. As a result conditions are evaluated even when no relevant state change occurs and evaluation is performed unnecessarily in steps where behavior would not change.
+
+In contrast, trigger-based evaluation ties condition evaluation directly to state transitions. This demonstrates that the difference is not only computational, but structural:
+
+polling -> time-driven evaluation  
+trigger-based -> state-driven evaluation
+
+This supports the need for a mechanism that decouples behavior evaluation from the step-based scheduler.

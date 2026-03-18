@@ -18,29 +18,30 @@ class ManualScanAgent:
 
         return neighbors
 
-    def scan_for_resource(self, resources):
-        count = 0
-
-        for neighbor in self.get_neighbors():
-            if neighbor in resources:
-                count += 1
-
-        return count
-
 
 class ManualSimulation:
-    def __init__(self, num_agents=5):
-        self.agents = [ManualScanAgent() for _ in range(num_agents)]
-        self.resources = {(random.randint(0, 4), random.randint(0, 4)) for _ in range(5)}
-        self.total_scans = 0
+    def __init__(self, resources, positions):
+        self.agents = [ManualScanAgent() for _ in positions]
+
+        for agent, pos in zip(self.agents, positions):
+            agent.position = pos
+
+        self.resources = resources
+        self.total_checks = 0
 
     def step(self):
         for agent in self.agents:
-            found = agent.scan_for_resource(self.resources)
-            self.total_scans += 1
+            neighbors = agent.get_neighbors()
+
+            # count actual work (number of neighbor checks)
+            self.total_checks += len(neighbors)
+
+            # perform observation manually
+            for neighbor in neighbors:
+                _ = neighbor in self.resources
 
     def run(self, steps=20):
         for _ in range(steps):
             self.step()
 
-        return self.total_scans
+        return self.total_checks

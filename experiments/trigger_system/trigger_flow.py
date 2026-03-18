@@ -11,8 +11,6 @@ class TriggerFlow:
 
             self.log.append(f"Step {step_num}: state changed -> evaluating")
 
-            self.condition_checks += 3
-            
             # evaluate only on change
             _ = self.state < 3
             _ = self.state > 7

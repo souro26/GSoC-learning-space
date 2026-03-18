@@ -34,6 +34,23 @@ Flat:
 Modular:
 ['wander', 'wander', 'wander', 'wander', 'wander', 'eat', 'wander', 'wander', 'eat', 'wander']
 
+## Performance Note
+
+The modular approach introduces an additional loop over behaviors:
+
+- Flat: sequential if/elif checks
+- Modular: iteration over behavior objects with check() calls
+
+This adds a small overhead due to:
+- function calls (check, act)
+- iteration over behavior list
+
+However, in this experiment:
+- no measurable difference in total actions
+- overhead remains constant per step
+
+This indicates that modular structure changes organization, not execution outcome, with minimal cost at this scale.
+
 ## Observations
 
 - Both implementations produce identical behavior.
@@ -54,7 +71,7 @@ Modular approach:
 
 - Behavior is separated into smaller units
 - Each behavior is easier to read and modify
-- Logic is organized, but still manually structured
+- Logic is organized, but execution remains centrally controlled by step()
 
 ## Limitation
 
@@ -68,10 +85,12 @@ Developers must:
 
 ## Conclusion
 
-Separating behavior improves clarity without changing outcomes. However, this structure must currently be implemented manually. This supports the need for small primitives that help separate:
+Separating behavior into modules improves clarity without changing outcomes.  However, this modularity is structural, not semantic.
 
-- observation
-- decision
-- action
+- behaviors are still evaluated every step
+- execution is still controlled by the agent step() loop
+- behavior activation is not independent
 
-rather than introducing a full behavioral framework.
+This means modularity alone does not change how behavior executes. 
+
+To make behaviors truly independent units, execution must be decoupled from the step loop. This connects directly to state-triggered execution, where behaviors can be activated based on conditions rather than evaluated unconditionally.

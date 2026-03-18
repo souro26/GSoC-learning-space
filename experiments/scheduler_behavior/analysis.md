@@ -2,49 +2,72 @@
 
 ## Setup
 
-Two scheduling approaches were compared:
+Two scheduling strategies were compared:
 
-1. Fixed order:
-   
-   - Agents act in the same sequence every step
+1. Fixed order: agents execute in the same sequence every step
 
-2. Random order:
-   
-   - Agent execution order is shuffled every step
+2. Random order: agent execution order is shuffled each step
 
-All agents follow the same rules:
+All agents are identical and follow the same rules:
 
-- A shared resource is available each step
-- Only one agent can collect it
-- The first agent to act gets the resource
+- one shared resource is available per step
+- only one agent can collect it
+- the first agent to act acquires the resource
+
+This setup isolates the effect of execution order under contention.
 
 ## Results
 
-Random Order:
-
-[1, 6, 3, 5, 5]
-
-Fixed Order:
+Fixed order:
 
 [20, 0, 0, 0, 0]
 
+Random order:
+
+[1, 6, 3, 5, 5]
+
 ## Observations
 
-- In fixed order, the first agent consistently collects all resources.
-- Other agents never get a chance to act on the resource.
-- In random order, resource collection is distributed across agents.
-- Outcomes vary even though agent logic is identical.
+- In fixed ordering, the first agent consistently acquires the resource
+- All other agents are effectively excluded from interaction
+- In random ordering, resource access is distributed across agents
+- Outcomes differ despite identical agent logic and environment
+
+This demonstrates that execution order directly affects agent outcomes.
 
 ## Key Insight
 
-Behavior is affected not only by rules, but also by execution order. Even with identical agents and decision logic, different scheduling leads to different outcomes.
+In step-based systems, behavior activation is tied to scheduler order.
 
-## Implication
+This creates a structural dependency:
 
-This introduces a form of order sensitivity: Results depend on when agents are evaluated, and Behavior is not purely determined by rules.
+- agents act when they are scheduled
+- not when conditions become true
+
+Under contention:
+
+- earlier agents systematically gain priority
+- later agents may never act on available opportunities
+
+This results in deterministic bias under fixed ordering.
+
+## Limitation
+
+Random scheduling reduces systematic bias but does not remove the underlying dependency on execution order:
+
+- agents are still evaluated sequentially
+- activation still depends on scheduler timing
+- no mechanism exists for simultaneous or condition-based activation
 
 ## Conclusion
 
-Scheduler choice directly influences simulation outcomes.
+Scheduler ordering acts as an implicit control mechanism in time-driven execution. Behavior is not determined solely by rules, but also by when
+agents are evaluated.
 
-This highlights the need for more explicit control over evaluation and execution order, especially when designing structured behavioral systems.
+This introduces:
+
+- deterministic bias (fixed order)
+- stochastic variability (random order)
+- outcome dependence on execution sequence
+
+These effects arise from time-driven activation. A state-triggered execution model would reduce dependence on scheduler ordering by allowing behaviors to activate based on state changes rather than evaluation sequence.
