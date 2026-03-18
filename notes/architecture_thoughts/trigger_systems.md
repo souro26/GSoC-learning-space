@@ -17,7 +17,7 @@ Each trigger consists of:
 
 - condition — a function over agent/environment state
 - dependencies — variables the condition depends on
-- activation rule — fires only on False → True transitions
+- activation rule — fires only on False -> True transitions
 
 ## Dependency Tracking
 
@@ -25,7 +25,7 @@ Triggers explicitly declare the variables they depend on.
 
 Example:
 
-energy < threshold → depends on: energy
+energy < threshold -> depends on: energy
 
 When a state variable changes:
 
@@ -38,7 +38,7 @@ This avoids evaluating all conditions every step.
 
 Triggers activate only when their condition transitions:
 
-False → True
+False -> True
 
 This prevents repeated execution when a condition remains true
 across multiple steps.
@@ -82,7 +82,7 @@ but must be explicitly controlled.
 
 Triggers can cause cascading activation chains:
 
-A → B → C → A
+A -> B -> C -> A
 
 Edge-based activation reduces repeated triggering,
 but does not eliminate all cycles.

@@ -1,93 +1,130 @@
-<!-- After forking, you can update this readme to give an overview of your work and learning, if you want. -->
+# State-Triggered Behavioral Execution in Agent-Based Models
 
-# Mesa GSoC Learning Space
-This is a template repository for GSoC candidates working on [Mesa](https://github.com/mesa/mesa). Fork it to create your personal learning space.
+## Core Idea
 
-## What is this?
-Before contributing to Mesa, you need to understand Mesa — not just the API, but how agent-based models work and how Mesa's pieces fit together. This repo is your space to do that learning, visibly.
+Most agent-based modeling frameworks evaluate agent behavior at every time step, regardless of whether anything relevant has changed. This leads to repeated evaluation of unchanged conditions, unnecessary computation, and execution semantics tied to scheduler iteration rather than actual state changes.
 
-**The idea is simple: build models first, contribute second.**
+This repository explores an alternative, evaluating behavior only when it matters.
 
-This repo is also your chance to practice the open-source skills that make contributions successful: clear communication, clean git history, good documentation, collaboration, and code review. These matter as much as the code itself.
+## Problem
 
-_Everything here is a suggestion, nothing is mandatory. It's a tool to help you structure your own learning process. Use as you see fit._
+Across major ABM frameworks (Mesa, NetLogo, Agents.jl, GAMA), behavior execution follows the same structure:
 
-## Why build models?
-Mesa is a library *for modellers*. If you want to improve it, you need to experience it the way its users do. That means building models — not just reading the source code or tutorials.
+loop -> agent -> evaluate -> execute
 
-When you build models, you discover things you can't learn any other way:
-- **Where Mesa helps and where it gets in the way.** You'll hit friction points, confusing APIs, missing features, unclear documentation. These are the real problems worth solving — and you found them because you needed something to work, not because you were looking for a PR to open.
-- **How the pieces fit together.** Mesa has agents, models, spaces, data collection, visualization, event scheduling. Reading about them is different from wiring them together in a model that actually does something. Building gives you the architectural intuition that makes your contributions fit naturally into the framework.
-- **What modellers care about.** The best Mesa contributions historically come from people who hit a real problem in their own work. They understand the context because they live in it. Building models puts you in that position.
+Agents are stepped every cycle, and all behavior logic is re-evaluated even when nothing relevant has changed.
 
-Without this experience, it's very hard to make contributions that actually help Mesa's users. You might write code that compiles and passes tests but solves a problem nobody has, or solves it in a way that doesn't fit how modellers think. Building models first prevents that.
+This results in:
 
-## How to use this repo
-### 1. Fork this template
-Click "Use this template" (or fork) to create your own copy under your GitHub account.
+- repeated condition checks
+- execution driven by time instead of state
+- behavior tightly coupled to scheduler ordering
 
-### 2. Fill in your motivation
-Edit `motivation.md` — who you are, why Mesa, what you want to learn, where you want to go. Keep it honest and concise.
+Behavior is evaluated because time advances, not because conditions are met.
 
-### 3. Build models
-This is the core of the repo. Build Mesa models in the `models/` folder. Start simple, increase complexity. Each model should have its own folder with:
-- The model code
-- A `README.md` covering:
-  - What the model does and why you chose it
-  - What Mesa features it uses
-  - What you learned building it
-  - What was hard, what surprised you, what you'd do differently
+## Approach
 
-**Focus on learning, not impressing.** A simple model with a thoughtful README is worth more than a complex model you can't explain.
+This repository investigates a state-triggered execution model. Instead of evaluating behavior every step:
 
-### 4. Review and collaborate
-This is where you practice the collaborative side of open source:
-- **Review others' work**: Find another GSoC candidate's learning repo and open issues or PRs with feedback on their models. Be constructive and specific.
-- **Work together**: Build a model with another candidate. Use branches, PRs, and code review — the same workflow you'd use on Mesa itself.
-- **Document your reviews**: Keep notes in `reviews/` about models you reviewed and what you learned from reading someone else's code.
+- conditions are evaluated when relevant state changes occur
+- behaviors activate when conditions become true
+- evaluation becomes selective rather than global
 
-Collaboration is not required, but it's noticed and valued. If you and another candidate review each other's models, improve each other's code, or build something together using proper git workflow — that demonstrates exactly the skills Mesa needs.
+This is explored through:
 
-### 5. Link to your Mesa PRs
-When you open a PR on any Mesa repo, link to the relevant work in this learning space. This gives reviewers context for your understanding without having to extract it through the review process.
+- experiments (isolated behavior testing)
+- benchmarks (quantitative validation)
+- model implementations (real use cases)
+- platform analysis (cross-system comparison)
 
-## Repo structure
+## Experiments
 
-```
-├── motivation.md           # Who you are, why Mesa, what you want to learn
-├── models/
-│   ├── my_first_model/
-│   │   ├── model.py
-│   │   └── README.md       # What you built, what you learned
-│   ├── second_model/
-│   │   ├── ...
-│   │   └── README.md
-│   └── ...
-├── reviews/                 # Notes from reviewing other candidates' work
-│   └── ...
-└── notes/                   # Optional: design explorations, reading notes, scratch work
-    └── ...
-```
+Experiments isolate specific behavioral issues and test alternatives:
 
-## What makes a good learning space?
-- **Models that show progression.** Start with a basic model (Boltzmann Wealth, Schelling), then build something that stretches you — a model that uses discrete spaces, PropertyLayers, event scheduling, data collection, or visualization.
-- **Honest READMEs.** "I got stuck on X and solved it by Y" is more useful than a polished summary. We want to see your thinking, not a press release.
-- **Clean git practices.** Meaningful commit messages, branches for separate models, no giant "add everything" commits. This is practice for contributing to Mesa.
-- **Engagement with others.** Reviewing someone else's model, suggesting improvements, or building together shows you understand that open source is collaborative.
+- trigger_system -> polling vs trigger-based evaluation
+- behavior_modularity -> modular vs monolithic behavior
+- observation_helpers -> structured vs manual observation
+- scheduler_behavior -> impact of execution order
 
-## Suggested starting points
-1. Go through Mesa's [introductory tutorials](https://mesa.readthedocs.io/latest/getting_started.html)
-2. Study the [core examples](https://github.com/mesa/mesa/tree/main/mesa/examples) — don't just run them, read the code and understand the design choices
-3. Build your own version of a classic ABM (Schelling, Sugarscape, flocking, etc.)
-4. Then build something original — a model for a domain you're interested in
-5. Read the [Mesa 3.5 release notes](https://github.com/mesa/mesa/releases) to understand recent changes and direction
-6. Look at [open discussions](https://github.com/mesa/mesa/discussions) to understand what Mesa is working toward
+Each experiment focuses on one dimension of behavior.
 
-## Resources
-- [Mesa documentation](https://mesa.readthedocs.io/)
-- [Mesa contributing guide](https://github.com/mesa/mesa/blob/main/CONTRIBUTING.md)
-- [Mesa migration guide](https://mesa.readthedocs.io/latest/migration_guide.html)
-- [Community examples](https://github.com/mesa/mesa-examples)
-- [ABM concepts MOOC](https://ocw.tudelft.nl/course-lectures/agent-based-modeling/)
-- [Practical Mesa MOOC](https://www.complexityexplorer.org/courses/172-agent-based-models-with-python-an-introduction-to-mesa)
-- [Matrix chat](https://matrix.to/#/#project-mesa:matrix.org)
+## Benchmarks
+
+Benchmarks quantify the cost of current approaches:
+
+- trigger_vs_polling -> condition evaluation frequency
+- step_complexity -> growth of step() logic
+- decision_pipelines_overhead -> cost of structured decisions
+
+Example result:
+
+Polling evaluates conditions every step.
+
+Trigger-based evaluation reduces checks when state changes are sparse.
+
+## Models
+
+Three models were implemented to test behavioral patterns:
+
+- needs_predator_prey -> threshold-driven behavior
+- bdi_agents -> staged decision pipelines
+- rl_agents -> policy-based decisions
+
+These expose how behavior is currently structured and where limitations appear.
+
+## Findings
+
+Across experiments and models:
+
+- behavior is evaluated even when state is unchanged
+- observation, decision, and execution are tightly coupled
+- behavior logic accumulates inside step()
+- execution order affects outcomes
+
+These are not isolated issues. They come from the execution model.
+
+## Primitive Candidates
+
+Based on these findings, several minimal primitives are explored:
+
+- condition triggers -> run behavior on state change
+- observation helpers -> reusable perception logic
+- decision pipelines -> structured decision stages
+- behavior composition -> modular behavior units
+- evaluation ordering -> explicit control over execution order
+
+These are small, composable improvements — not a new framework.
+
+## Platform Analysis
+
+NetLogo, Agents.jl, and GAMA were analyzed. All follow time-driven execution:
+
+- behavior evaluated every step or cycle
+- no dependency-aware execution
+- no state-driven activation
+
+Differences exist in syntax and scheduling flexibility, but not in execution semantics.
+
+## Key Insight
+
+The limitation is not in APIs or syntax. It is in the execution model. Current systems assume evaluation of everything at every step. This repository explores evaluation only when it matters.
+
+## Repository Structure
+
+- experiments/ -> isolated behavioral experiments
+- benchmarks/ -> quantitative evaluation
+- models/ -> agent implementations
+- findings/ -> patterns and pain points
+- platform_analysis/ -> cross-framework study
+- notes/ -> architectural exploration
+
+## Status
+
+This repository represents the research and validation phase:
+
+- problem identified through work with mesa.time
+- validated across models and platforms
+- supported by experiments and benchmarks
+
+The next step formalizing this into a system that integrates with Mesa
+without breaking existing models.
