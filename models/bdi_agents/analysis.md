@@ -26,21 +26,40 @@ act()
 
 ## Observations
 
-Beliefs are constructed by scanning neighboring cells for resources. Goals are derived directly from those beliefs. Intentions are implemented as simple action choices such as moving toward a resource or wandering. All of this logic is implemented inside the agent step() method.
+The BDI structure introduces clear conceptual stages:
 
-## Notes
+beliefs -> goals -> intentions -> actions
 
-Even though the behavior is structured conceptually as
-beliefs -> goals -> intentions -> actions,
-the implementation still relies on procedural code
-inside step().
+However, in Mesa:
 
-Each stage of the BDI loop must be implemented manually.
+- all stages are executed unconditionally every step
+- belief updates require repeated scanning of the environment
+- goal and intention logic are tightly coupled to execution
 
-## Questions Raised
+This leads to two issues:
 
-1. How easy is it to reuse belief or intention logic across agents?
-2. Does Mesa provide built-in support for separating beliefs,
-goals, and actions?
-3. How complex does the agent step() method become
-when implementing richer BDI behavior?
+1. No selective activation: Even when no new information is available, the full decision pipeline is executed every step.
+
+2. Execution tied to step(): The BDI loop cannot be expressed as independently activated stages. All logic must remain inside a single step() method.
+
+## Structural Limitation
+
+Although the behavior is conceptually structured, the execution model does not support this structure.
+
+- stages cannot be independently activated
+- observation, decision, and execution are tightly coupled
+- the entire pipeline runs on every scheduler step
+
+This shows that structured behavior can be expressed, but not natively supported at the execution level.
+
+## Implications for Design
+
+This model highlights the need for:
+
+- Decision Pipelines: to represent staged behavior explicitly
+
+- Observation Helpers: to avoid repeated environment scanning
+
+- State-Triggered Execution: to activate decision stages only when relevant state changes occur
+
+Without these, structured behavior remains manually implemented and tied to step-based execution.

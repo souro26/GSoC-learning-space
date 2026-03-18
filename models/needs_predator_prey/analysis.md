@@ -38,7 +38,7 @@ elif energy < threshold:
 else:
     random_move()
 ````
-The order of these checks implicitly defines behavior priority.
+The order of these checks implicitly defines behavior priority. The priority is not represented explicitly. It is encoded through the order of conditional statements, which makes behavior harder to modify, reason about and extend. 
 
 ## Observation Mechanisms
 
@@ -50,7 +50,7 @@ Example: energy < threshold
 Environmental scanning
 Example: checking nearby cells for predators or prey.
 
-Both of these checks happen every simulation step. Even when the agent’s state has not changed, the same conditions are evaluated again.
+Both of these checks happen every simulation step, regardless of whether the underlying state or environment has changed. This reflects a polling-based execution model, where conditions must be repeatedly evaluated because there is no mechanism to react to state changes directly.
 
 ## Decision Logic
 
@@ -62,7 +62,7 @@ There is no explicit representation of behavioral rules such as:
 - behavior modules
 - decision policies
 
-Instead, rules are implemented directly in code. Behavior priority is determined by the order of conditional statements.
+As a result, behavioral rules are tightly coupled to execution.There is no way to define conditions independently from the step() loop, making it difficult to control when behavior should be evaluated.
 
 ## Coupling of Responsibilities
 
@@ -81,7 +81,7 @@ Example flow inside step():
 4. choose behavior
 5. execute movement or interaction
 
-Because all of this logic is located in one function, step() becomes the central location for behavioral code. As more behaviors are added, the method grows longer and harder to reason about.
+Because all of this logic is located in one function, step() becomes the central location for behavioral code. As more behaviors are added, the method grows longer and harder to reason about. This coupling arises because execution is centralized in step(), with no mechanism to separate activation from behavior logic.
 
 ## Repeated Condition Evaluation
 
@@ -93,7 +93,8 @@ Examples:
 - checking hunger thresholds
 - deciding whether to move randomly
 
-These checks are performed even when nothing relevant has changed. This leads to repeated polling of behavioral conditions. For simple models this overhead is small, but in larger simulations it can lead to unnecessary evaluation.
+These checks are performed even when nothing relevant has changed. This leads to repeated evaluation of unchanged conditions. From benchmarks, this results in unnecessary computation when state changes are sparse, as the same conditions are
+checked even when no relevant updates occur. For simple models this overhead is small, but in larger simulations it can lead to unnecessary evaluation.
 
 ## Behavior Reusability
 
@@ -115,13 +116,24 @@ The complexity of step() grows as new behaviors are added. Each additional rule 
 - additional state observation
 - new action logic
 
-This leads to step methods that gradually accumulate behavioral logic. This pattern appears in many Mesa models and can make agent code difficult to maintain when behaviors become more complex.
+This leads to step methods that gradually accumulate behavioral logic. This pattern appears in many Mesa models and can make agent code difficult to maintain when behaviors become more complex. This leads to linear growth in condition evaluation within step(), increasing both complexity and maintenance overhead as models scale.
 
-## Research Questions
+## Implications for Design
 
-1. How complex does the step() method become as more behavioral rules are added?
-2. Are behavioral conditions evaluated even when no relevant state change occurs?
-3. How reusable are behavioral rules across different agent types?
-4. Does Mesa provide abstractions for defining behavioral rules outside the step() method?
-5. What patterns emerge across different behavioral architectures implemented in Mesa?
-6. These questions guide the evaluation of Mesa’s support for behavioral modeling.
+This model highlights several limitations of step-based execution:
+
+- behavioral conditions are evaluated through repeated polling
+- behavior priority is implicit in code structure
+- observation, decision, and execution are tightly coupled
+- behavior cannot be activated based on state changes
+
+This motivates the need for:
+
+- State-Triggered Execution: to evaluate conditions only when relevant state   hanges occur
+
+- Observation Helpers: to structure and reuse environment scanning logic
+
+- Behavior Composition: to separate behavioral units from the step() method
+
+Without these, behavior remains tightly coupled to the
+scheduler and difficult to scale as complexity increases.

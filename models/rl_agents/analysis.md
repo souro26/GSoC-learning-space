@@ -24,21 +24,42 @@ act(action)
 
 ## Observations
 
-The policy logic is implemented as a function that maps a state to an action.
+The agent follows a policy-based decision structure:
 
-Example:
+state -> action
 
-resource nearby -> collect
-otherwise -> move
+However, in Mesa:
 
-Even though this is conceptually a policy-based agent, the implementation still happens inside the agent step() method.
+- observation is recomputed every step through environment scanning
+- policy evaluation is executed unconditionally each step
+- action selection is tied directly to the step() loop
 
-## Notes
+This means that even in a policy-based setup, decision evaluation remains time-driven rather than state-driven.
 
-Observation of the environment is still done by scanning nearby cells. Policy selection and action execution are written directly in code.
+## Structural Limitation
 
-## Questions Raised
+Even though the decision logic is expressed as a policy, the execution model does not change:
 
-1. How easily can external policies (for example trained models) be integrated with Mesa agents?
-2. Does policy logic remain inside the step() function like other models?
-3. Would separating observation and action selection make agent code easier to manage?
+- observation is still performed through repeated scanning
+- policy evaluation is not triggered by state changes
+- execution remains tied to the scheduler loop
+
+This shows that adopting a policy-based structure does not address the nderlying execution semantics.
+
+## Implications for Design
+
+This model shows that even when behavior is expressed as a policy, execution remains step-based:
+
+- observation is repeatedly recomputed
+- policy evaluation is unconditional
+- behavior cannot be activated based on state changes
+
+This motivates:
+
+- State-Triggered Execution: to evaluate policies only when relevant state changes occur
+
+- Observation Helpers: to avoid repeated environment scanning
+
+- Decision Pipelines: to separate observation, policy evaluation, and action execution
+
+Without these, policy-based agents remain tightly coupled to the step() loop, limiting efficiency and modularity.
