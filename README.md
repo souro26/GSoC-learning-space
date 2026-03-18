@@ -130,3 +130,5 @@ This repository represents the research and validation phase:
 
 The next step is formalizing this into a system that integrates with Mesa
 without breaking existing models.
+
+For a concise project plan and proposal-style roadmap, see `proposal.md`.
