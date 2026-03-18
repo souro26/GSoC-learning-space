@@ -5,8 +5,7 @@
 Two approaches were compared:
 
 1. Flat agent using if/elif rules inside step()
-2. Pipeline agent using stages:
-   beliefs -> goal -> action
+2. Pipeline agent using staged decision logic: beliefs -> goal -> action
 
 Both were run with:
 
@@ -15,31 +14,40 @@ Both were run with:
 
 ## Results
 
-Flat agent:
-
-- Condition checks: 190000
-- Actions: 100000
-
-Pipeline agent:
-
-- Function calls: 300000
-- Actions: 100000
+| Approach | Condition checks | Function calls | Actions |
+|----------|----------------|----------------|---------|
+| Flat     | 199000         | —              | 100000  |
+| Pipeline | 300000         | 300000         | 100000  |
 
 ## Observations
 
-Both approaches produce the same number of actions.
+- Both approaches produce identical behavior (same number of actions)
+- The pipeline evaluates more conditions than the flat implementation
+- The pipeline introduces additional function calls due to staged execution
 
-However, the internal work differs:
+## Key Insight
 
-- Flat approach performs fewer operations (condition checks)
-- Pipeline approach performs more operations (function calls)
+Decision pipelines do not reduce evaluation.  
+They can increase it.
 
-The pipeline introduces extra structure, but also extra overhead.
+- flat logic benefits from early exit (if/elif short-circuiting)
+- pipeline logic evaluates all conditions upfront (belief construction)
+
+As a result:
+
+- flat evaluation is partially selective
+- pipeline evaluation is unconditional within each step
 
 ## Interpretation
 
-The flat approach keeps everything inside step(), which is simple but mixes all logic together. The pipeline approach separates decision stages (beliefs, goal, action), which is easier to reason about, but requires more function calls.
+The pipeline structure separates behavior into stages:
 
-## Conclusion
+- observation (beliefs)
+- decision (goal)
+- execution (action)
 
-Structured decision pipelines improve clarity of behavior, but require manual implementation and introduce additional overhead. Mesa does not provide built-in support for this structure, so developers must implement it themselves inside step().
+However:
+
+- all conditions are evaluated every step
+- belief construction forces evaluation of all inputs
+- early exit optim

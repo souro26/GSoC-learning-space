@@ -2,12 +2,12 @@
 
 ## Setup
 
-Agents were tested with increasing numbers of rules inside step().
+Agents were tested with increasing numbers of behavioral rules inside step().
 
-Two modes were used:
+Two evaluation modes were used:
 
-- Early exit (similar to if/elif chains)
-- Full scan (evaluate all conditions every step)
+- Early exit: mimics if/elif chains (stop after first match)
+- Full scan: evaluates all rules every step
 
 Test parameters:
 
@@ -16,46 +16,77 @@ Test parameters:
 
 ## Results
 
-Early Exit Mode
+### Early Exit Mode (if/elif behavior)
 
-Rules: 1 -> 100000 checks
-Rules: 3 -> 219265 checks
-Rules: 5 -> 276403 checks
-Rules: 10 -> 323852 checks
-Rules: 20 -> 334912 checks
+| Rules | Total checks |
+|------|-------------|
+| 1    | 100000      |
+| 3    | 219265      |
+| 5    | 276403      |
+| 10   | 323852      |
+| 20   | 334912      |
 
-Full Scan Mode
+### Full Scan Mode (worst case)
 
-Rules: 1 -> 100000 checks
-Rules: 3 -> 300000 checks
-Rules: 5 -> 500000 checks
-Rules: 10 -> 1000000 checks
-Rules: 20 -> 2000000 checks
+| Rules | Total checks |
+|------|-------------|
+| 1    | 100000      |
+| 3    | 300000      |
+| 5    | 500000      |
+| 10   | 1000000     |
+| 20   | 2000000     |
 
 ## Observations
 
-In full scan mode, the number of condition checks increases linearly with the number of rules. Each additional rule adds a fixed amount of work every step. In early exit mode, the number of checks still increases as rules increase, but the growth slows down due to early termination. However, even with early exit, adding more rules still increases the total number of evaluations.
+- In full scan mode, evaluation cost increases linearly with the number of rules
+- Every additional rule adds a fixed amount of work per step
+- In early exit mode, evaluation cost grows more slowly due to short-circuiting
+- However, even with early exit, more rules still increase total evaluations
+
+## Key Insight
+
+The cost of behavior evaluation is tied to the number of rules, not to whether those rules are relevant.
+
+This means:
+
+- conditions are evaluated because they exist
+- not because their underlying state has changed
+
+Early exit reduces the average number of checks, but does not change the structure of evaluation.
 
 ## Interpretation
 
-All behavioral rules are evaluated inside the step() method.
+Behavior logic implemented inside step() scales with rule count:
 
-As more rules are added:
+- more rules → more condition checks
+- more condition checks → higher per-step cost
 
-- more conditions are checked every step
-- the amount of work per step increases
-- logic becomes harder to manage
+This scaling occurs regardless of whether:
 
-Even in optimized cases (early exit), the structure still scales with the number of rules.
+- the agent’s state has changed
+- the environment has changed
+- the condition is actually relevant
+
+## Implication
+
+This demonstrates that step-based execution enforces:
+
+evaluation = f(number of rules × time steps)
+
+rather than:
+
+evaluation = f(relevant state changes)
+
+As a result, adding new behaviors increases cost globally,
+even if those behaviors are rarely triggered.
 
 ## Conclusion
 
-The step() method scales with the number of behavioral rules.
+The step()-based execution model does not scale cleanly with increasing behavioral complexity.
 
-This leads to:
+Even with optimizations like early exit:
 
-- repeated condition evaluation
-- increasing per-step workload
-- growing complexity of agent logic
+- evaluation cost still grows with rule count
+- condition checks remain tied to time progression
 
-This supports the observation that behavior implemented inside step() does not scale cleanly as models become more complex.
+This reinforces the need for execution models where behavior is evaluated selectively, based on relevant state changes rather than on every simulation step.

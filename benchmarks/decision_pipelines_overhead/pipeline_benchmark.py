@@ -11,7 +11,8 @@ class FlatAgent:
         self.actions = 0
 
     def step(self):
-        # simulate flat decision logic
+        # simulate flat decision logic (if/elif style)
+
         self.checks += 1
         if self.predator_near:
             self.actions += 1
@@ -43,6 +44,10 @@ class PipelineAgent:
 
     def update_beliefs(self):
         self.function_calls += 1
+
+        # count condition evaluations explicitly
+        self.checks += 3
+
         return {
             "predator": self.predator_near,
             "low_energy": self.energy < 5,
@@ -51,6 +56,7 @@ class PipelineAgent:
 
     def choose_goal(self, beliefs):
         self.function_calls += 1
+
         if beliefs["predator"]:
             return "escape"
         if beliefs["low_energy"]:
@@ -79,6 +85,7 @@ def run_simulation(agent_class, steps=1000, n_agents=100):
     for _ in range(steps):
         for agent in agents:
             agent.step()
+
             total_actions += agent.actions
             agent.actions = 0
 
@@ -98,12 +105,13 @@ if __name__ == "__main__":
     agents = 100
 
     flat_checks, flat_actions, _ = run_simulation(FlatAgent, steps, agents)
-    _, pipeline_actions, pipeline_calls = run_simulation(PipelineAgent, steps, agents)
+    pipe_checks, pipe_actions, pipe_calls = run_simulation(PipelineAgent, steps, agents)
 
     print("=== Flat Agent ===")
     print(f"Condition checks: {flat_checks}")
     print(f"Actions: {flat_actions}")
 
     print("\n=== Pipeline Agent ===")
-    print(f"Function calls: {pipeline_calls}")
-    print(f"Actions: {pipeline_actions}")
+    print(f"Condition checks: {pipe_checks}")
+    print(f"Function calls: {pipe_calls}")
+    print(f"Actions: {pipe_actions}")
