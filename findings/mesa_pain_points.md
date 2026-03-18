@@ -1,17 +1,24 @@
 # Mesa Pain Points
 
-These issues were observed while implementing behavioral models. They are not isolated inconveniences, but symptoms of how behavior execution is structured in Mesa.
+These issues were observed while implementing behavioral models in Mesa. They are not isolated problems. They are direct consequences of the execution model, where behavior is evaluated on every step rather than triggered by state changes.
 
-## Repeated condition checks
+## Repeated condition evaluation
 
 Agents repeatedly evaluate the same conditions every step.
 
 Example:
 
-predator_nearby()
-energy < threshold
+predator_nearby()  
+energy < threshold  
 
-These checks run even when no relevant state has changed. This happens because there is no mechanism for dependency-aware execution. The system does not track which variables affect which behaviors, so all conditions must be evaluated unconditionally. This leads to repeated evaluation of unchanged conditions, as confirmed by benchmarks comparing time driven and trigger based evaluations.
+These checks run even when no relevant state has changed. This is a direct consequence of time-driven execution:
+
+- the system does not track dependencies between state and behavior
+- all conditions must be evaluated unconditionally
+- evaluation is tied to time progression, not relevance
+
+Benchmarks (trigger vs polling) show that this leads to large amounts of  unnecessary evaluation when state changes are sparse.
+
 
 ## Behavior logic accumulates inside step()
 
@@ -20,28 +27,41 @@ Most behavior is implemented inside the step() method.
 As models grow:
 
 - step() becomes longer
-- logic becomes harder to maintain
 - responsibilities become mixed
+- logic becomes harder to maintain
 
-This is not just a structural issue. It happens because execution is tied to the scheduler, and there is no way to define independently activated behaviors. All behavior must therefore be placed inside a single entry point.
+This is not just a structural issue. Because execution is tied to the scheduler:
+
+- there is no mechanism to define independently activated behaviors
+- all logic must be placed inside a single entry point
+
+Step complexity benchmarks show that evaluation cost grows with the number of rules, even when most rules are not relevant.
 
 ## Manual decision pipelines
 
 Structured behaviors (e.g. BDI) require staged logic:
 
-update_beliefs()
-choose_goal()
-form_intention()
-act()
+update_beliefs()  
+choose_goal()  
+form_intention()  
+act()  
 
-Mesa provides no abstraction for this. Developers must manually define and maintain the pipeline. Even though the logic is conceptually staged, execution remains part of the same step loop, with no control over when each stage should run.
+Mesa provides no abstraction for this.
+
+Developers must:
+
+- implement the pipeline manually
+- manage ordering explicitly
+- execute all stages every step
+
+Benchmarks show that this structure improves clarity but does not reduce evaluation cost, and may increase it due to additional overhead.
 
 ## Policy and decision logic tightly coupled to agents
 
 Policy-based approaches still embed logic inside the agent:
 
-state = observe()
-action = policy(state)
+state = observe()  
+action = policy(state)  
 
 There is no mechanism to separate:
 
@@ -49,7 +69,13 @@ There is no mechanism to separate:
 - policy execution
 - activation conditions
 
-As a result, policy evaluation is tied to the step loop, not to relevant state changes,
+As a result:
+
+- state is recomputed every step
+- policy is evaluated every step
+- execution remains tied to the step loop
+
+---
 
 ## Behavior depends on scheduler ordering
 
@@ -57,10 +83,10 @@ Agents act when the scheduler reaches them.
 
 This introduces:
 
-- ordering bias
-- non-deterministic outcomes (under random scheduling)
+- ordering bias (fixed scheduling)
+- non-deterministic outcomes (random scheduling)
 
-Execution timing is determined by scheduler mechanics, not by when relevant state changes occur.
+Execution timing is determined by scheduler mechanics, not by when relevant state changes occur. Experiments show that identical behavior can produce different outcomes depending on execution order.
 
 ## Actions API does not address decision execution
 
@@ -72,18 +98,18 @@ It improves:
 - action reuse
 - interruptible execution
 
-However, it defines how actions execute, not when behaviors should be activated. Observation and decision logic remain inside step(). As a result, the core execution model remains time driven.
+However it defines how actions execute over time, not when behaviors should be activated. Observation and decision logic remain inside step(). As a result, the execution model remains time-driven.
 
 ## Root Cause
 
-The issues above are not independent. They arise from a shared limitation, which is behavior execution is tied to time driven scheduling rather than state changes.
+These issues share a common origin: behavior execution is tied to time-driven scheduling rather than state changes.
 
 As a result:
 
-- all conditions are evaluated every step
-- this leads to repeated evaluation of unchanged conditions
+- conditions are evaluated every step
+- evaluation is independent of relevance
 - behavior cannot be selectively activated
-- logic accumulates inside a single execution point
+- logic accumulates inside step()
 - execution timing depends on scheduler order
 
 This indicates that the limitation is not at the level of APIs, but at the level of execution semantics.

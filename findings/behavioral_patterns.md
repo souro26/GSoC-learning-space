@@ -2,96 +2,136 @@
 
 ## Framing
 
-These patterns describe how behavior is actually expressed in Mesa models. They are not independent design choices. They emerge from the underlying execution model: behavior is evaluated on every step. As a result, many of these patterns exist not because they are ideal, but because there is no mechanism for condition-driven execution. This leads to repeated evaluations of unchanged conditions across all patterns.
+These patterns describe how behavior is expressed in Mesa models. They are not independent design choices. They are consequences of the execution model: behavior is evaluated on every step.
+
+This means:
+
+- conditions are evaluated regardless of relevance
+- observation, decision, and execution are recomputed each step
+- behavior is driven by time progression rather than state changes
+
+Experiments and benchmarks in this repository show that this leads to repeated evaluation and scaling issues as models grow.
 
 ## Pattern 1 — Threshold rules
 
-Many behaviors are triggered when an internal value crosses a threshold.
+Many behaviors depend on internal thresholds:
 
-Example:
+energy < threshold -> seek food
 
-energy < threshold -> look for food
+These conditions are implemented inside step() using if statements.
 
-This is typically implemented inside step() using an if condition. There is no mechanism to register conditions as independent activation rules. As a result, threshold checks are evaluated every step, even when the underlying state has not changed.
+Because evaluation is step-based:
 
-## Pattern 2 — Scanning nearby cells
+- conditions are checked every step
+- even when the underlying state has not changed
 
-Agents repeatedly scan their local environment to make decisions.
+This contributes to repeated condition evaluation observed in benchmarks.
 
-Examples:
+## Pattern 2 — Environment scanning
 
-- sheep check if a wolf is nearby
-- wolves check if sheep are nearby
+Agents repeatedly scan their local environment:
 
-These checks run every step. Since there is no mechanism to react to enviroment changes, agents must rescan the enviroment on every iteration.
+- sheep detect nearby wolves
+- wolves detect nearby sheep
+- agents detect resources
+
+This scanning is performed every step. There is no mechanism to react to environment changes directly, so agents must recompute observations continuously. This leads to unnecessary repeated work when the environment is unchanged.
 
 ## Pattern 3 — Behavior priority through code order
 
-Agent decisions are often written as sequential if statements:
+Behavior is often expressed as ordered conditions:
 
-1. predator nearby -> flee
-2. hungry -> find food
-3. otherwise -> wander
+1. predator nearby -> flee  
+2. hungry -> eat  
+3. otherwise -> wander  
 
-The order of conditions determines which behavior executes. This pattern emerges because there is no explicit mechanism for behavior prioritization or conflict resolution. Priority is implicitly encoded in code structure, making behavior implicit and harder to reason about.
+Priority is encoded implicitly through code order. This happens because:
+
+- there is no explicit prioritization mechanism
+- all conditions are evaluated within the same step
+
+As a result, behavior becomes harder to modify and reason about.
 
 ## Pattern 4 — Decision pipelines
 
-Some models structure behavior into stages:
+Some models introduce staged logic:
 
-beliefs -> goal -> intention -> action
+beliefs -> goal -> intention -> action  
 
-In code:
+This improves conceptual clarity.
 
-update_beliefs()
-choose_goal()
-form_intention()
-act()
+However:
 
-Although conceptually modular, all stages are executed inside the same step() function. This pattern shows an attempt to introduce structure, but execution remains tied to the global step loop. Execution is still tied to the global step loop instead of relevant state changes.
+- all stages are still executed every step
+- evaluation remains unconditional
+- execution is still tied to the step loop
 
-## Pattern 5 — Beliefs built through repeated scanning
+Benchmarks show that this structure does not reduce evaluation cost, and may increase it due to additional overhead.
 
-Agent beliefs are often constructed by scanning the environment. This happens every step, even when no relevant changes have occurred. There is no observation layer that updates based on state changes, so perception is recomputed repeatedly.
+## Pattern 5 — Observation-driven belief construction
+
+Agent beliefs are built by scanning the environment:
+
+- detecting nearby agents
+- identifying resources
+- constructing local state
+
+This process is repeated every step. There is no mechanism to update beliefs only when relevant state changes occur. As a result:
+
+- perception is recomputed even when nothing changes
+- observation cost scales with time, not with events
 
 ## Pattern 6 — Policy-based decisions
 
 Agents may use policies:
 
-state -> action
+state -> action  
 
-Example:
+Even in this case:
 
-resource nearby -> collect
-otherwise -> move
+- state is recomputed every step
+- the policy is evaluated every step
 
-The policy is typically implemented as a function, but is still evaluated every step. There is no mechanism to trigger policy evaluation only when the relevant state changes.
+There is no mechanism to trigger policy evaluation selectively. This means policy-based approaches do not change execution behavior, only how decisions are expressed.
 
 ## Pattern 7 — Observe -> decide -> act loop
 
-Many agents follow:
+Many agents follow observe -> decide -> act . This structure is conceptually clean, but:
 
-observe -> decide -> act
+- all stages are executed every step
+- no stage is conditionally activated
+- evaluation remains unconditional
 
-Example:
+This reinforces that structure does not change execution semantics.
 
-state = observe()
-action = policy(state)
-act(action)
+## Pattern 8 — Scheduler-dependent activation
 
-This structure is conceptually clean, but execution remains unconditional. All stages are executed every step, regardless of whether new information is available.
+Agents are evaluated in a specific order each step. This leads to:
 
-## Pattern 8 — Activation depends on scheduler order
+- ordering bias (fixed schedules)
+- non-deterministic outcomes (random schedules)
 
-Agents are executed in a specific order each step.
+Behavior depends not only on rules, but on when agents are evaluated. Since activation is tied to scheduler iteration:
 
-This affects outcomes:
-
-- earlier agents may act first and gain advantage
-- later agents may miss opportunities
-
-This shows that behavior depends not only on rules, but on when agents are evaluated. Since activation is tied to the scheduler, timing is driven by execution order, not state changes.
+- timing is determined by execution order
+- not by when conditions become true
 
 ## Summary
 
-All patterns reflect the same underlying constraint: behavior is evaluated as part of time-driven execution, not triggered by state changes. This results in repeated evaluation of unchanged conditions and implicit execution semantics across models.
+Across all patterns:
+
+- behavior is evaluated as a function of time steps
+- not as a function of state changes
+
+This leads to:
+
+- repeated evaluation of unchanged conditions
+- scaling with number of rules and agents
+- coupling between behavior and scheduler execution
+
+Experiments and benchmarks in this repository show that:
+
+- structural changes (modularity, pipelines) do not fix this
+- the limitation originates from the execution model itself
+
+This motivates the need for state-driven execution, where behavior is evaluated only when relevant conditions change.
