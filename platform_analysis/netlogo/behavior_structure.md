@@ -30,9 +30,7 @@ to go
   tick
 end
 
--> Pure polling model
-
-There is no support for condition-triggered execution or event-driven activation.
+This is a pure polling model.  There is no support for condition-triggered execution or event-driven activation.
 
 ## Decision Structure
 
@@ -90,7 +88,7 @@ There is no support for composable behaviors, reusable behavior units, or dynami
 
 ### Contradicts
 
-None (NetLogo is strictly more limited than Mesa)
+- No major contradictions identified. NetLogo follows the same step-driven execution model and is generally more constrained than Mesa in terms of extensibility and abstraction.
 
 ### Missing in Both Systems
 

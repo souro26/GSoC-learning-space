@@ -25,9 +25,7 @@ Behavior execution is driven by simulation stepping:
 
 stepAgents() -> runner.step()
 
-Reflex blocks are evaluated each simulation cycle. This is still polling-based execution.
-
-There is no true state-triggered activation or reactive execution model.
+Reflex blocks are evaluated each simulation cycle. This is still polling-based execution. There is no true state-triggered activation or reactive execution model.
 
 ## Decision Structure
 
@@ -84,8 +82,7 @@ However:
 
 ### Contradicts
 
-- “DSL solves behavior modeling” -> false  
-(GAMA improves syntax, not execution semantics)
+- The assumption that a domain-specific language (DSL) solves behavioral modeling is incorrect. GAMA improves syntax and readability, but does not change the underlying execution semantics, which remain step-driven.
 
 ### Missing in Both Systems
 

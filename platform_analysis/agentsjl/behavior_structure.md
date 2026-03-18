@@ -58,11 +58,7 @@ Supports:
 - deterministic order
 - event queues (continuous time)
 
-However: Execution order affects behavior, and there is no abstraction for dependency control.
-
-eat!(), move!(), etc.
-
-Behavior is reusable at function level, but there is no behavior abstraction layer, composition system, or lifecycle control.
+However, execution order affects behavior, and there is no abstraction for dependency control. Behavior is reusable at function level, but there is no behavior abstraction layer, composition system, or lifecycle control.
 
 ## Strength
 
@@ -87,8 +83,7 @@ Behavior is reusable at function level, but there is no behavior abstraction lay
 
 ### Contradicts
 
-- “Mesa lacks events” -> false  
-(Agents.jl already supports this)
+- The assumption that Mesa lacks event-based capabilities is incorrect. Agents.jl already provides time-based event scheduling, indicating that the limitation is not the presence of events, but the absence of state-driven execution.
 
 ### Missing in Both Systems
 
