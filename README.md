@@ -58,11 +58,9 @@ Benchmarks quantify the cost of current approaches:
 
 Example result:
 
-Time-driven (polling-based) execution evaluates 60 condition checks
-over 20 steps.
+Time-driven (polling-based) execution evaluates 60 condition checks over 20 steps.
 
-Trigger-based evaluation performs 24 checks under the same conditions,
-a ~60% reduction.
+Trigger-based evaluation performs 24 checks under the same conditions, a 60% reduction.
 
 Both approaches produce identical behavior.
 
