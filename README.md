@@ -126,5 +126,5 @@ This repository represents the research and validation phase:
 - validated across models and platforms
 - supported by experiments and benchmarks
 
-The next step formalizing this into a system that integrates with Mesa
+The next step is formalizing this into a system that integrates with Mesa
 without breaking existing models.
