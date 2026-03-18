@@ -15,13 +15,9 @@ execution actually flows inside a simulation.
 ## Why Mesa
 
 I didn’t pick Mesa randomly. I started contributing to it and gradually moved deeper into its internals. While working with mesa.time and scheduler behavior, I
-got comfortable with how step-based execution works, and that’s exactly where the problem showed up. Everything runs every step.
+developed a strong understanding of how time-driven execution works, and that’s exactly where the problem showed up. Everything runs every step.
 
-It doesn’t matter whether the agent’s state changed, the environment changed or anything relevant actually happened. If the scheduler advances, behavior runs.
-
-Because I already understood how mesa.time works, this stood out immediately. Behavior is tied to time progression, not to actual state changes. 
-
-I had also explored ideas around trigger-based or state-driven execution earlier in discussions, but this repository is where I properly tested and validated it.
+It doesn’t matter whether the agent’s state changed, the environment changed or anything relevant actually happened. If the scheduler advances, behavior runs.Because I already understood how mesa.time works, this stood out immediately. Behavior is tied to time progression, not to actual state changes. I had also explored ideas around trigger-based or state-driven execution earlier in discussions, but this repository is where I properly tested and validated it.
 
 ## What I want to learn
 
@@ -44,4 +40,4 @@ The goal is to improve how behavior execution is handled in Mesa. Right now, beh
 - adding state-driven activation as an additional layer
 - making execution more explicit and less dependent on scheduler ordering
 
-The work in this repository is the foundation for that. I identified the problem through working with mesa.time, validated it through experiments and benchmarks and explored minimal, practical solutions for this. The next step is to turn this into a concrete system that can be integrated into Mesa.
+The work in this repository is the foundation for this direction. I identified the problem through working with mesa.time, validated it through experiments and benchmarks and explored minimal, practical solutions for this. The next step is to turn this into a concrete system that can be integrated into Mesa.

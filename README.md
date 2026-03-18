@@ -4,7 +4,7 @@
 
 Most agent-based modeling frameworks evaluate agent behavior at every time step, regardless of whether anything relevant has changed. This leads to repeated evaluation of unchanged conditions, unnecessary computation, and execution semantics tied to scheduler iteration rather than actual state changes.
 
-This repository explores an alternative, evaluating behavior only when it matters.
+This repository explores an alternative, evaluating behavior only when relevant state changes occur.
 
 ## Problem
 
@@ -28,7 +28,7 @@ This repository investigates a state-triggered execution model. Instead of evalu
 
 - conditions are evaluated when relevant state changes occur
 - behaviors activate when conditions become true
-- evaluation becomes selective rather than global
+- evaluation is performed only when relevant state changes occur
 
 This is explored through:
 
@@ -58,9 +58,13 @@ Benchmarks quantify the cost of current approaches:
 
 Example result:
 
-Polling evaluates conditions every step.
+Time-driven (polling-based) execution evaluates 60 condition checks
+over 20 steps.
 
-Trigger-based evaluation reduces checks when state changes are sparse.
+Trigger-based evaluation performs 24 checks under the same conditions,
+a ~60% reduction.
+
+Both approaches produce identical behavior.
 
 ## Models
 
@@ -81,7 +85,7 @@ Across experiments and models:
 - behavior logic accumulates inside step()
 - execution order affects outcomes
 
-These are not isolated issues. They come from the execution model.
+These are not isolated issues. They come from the execution model. These issues arise from repeated evaluation of unchanged conditions.
 
 ## Primitive Candidates
 
@@ -93,7 +97,7 @@ Based on these findings, several minimal primitives are explored:
 - behavior composition -> modular behavior units
 - evaluation ordering -> explicit control over execution order
 
-These are small, composable improvements — not a new framework.
+These are small, composable improvements made to the current framework.
 
 ## Platform Analysis
 
@@ -107,7 +111,7 @@ Differences exist in syntax and scheduling flexibility, but not in execution sem
 
 ## Key Insight
 
-The limitation is not in APIs or syntax. It is in the execution model. Current systems assume evaluation of everything at every step. This repository explores evaluation only when it matters.
+The limitation is not in APIs or syntax. It is in the execution model.Current systems evaluate behavior as part of time progression, regardless of whether relevant state has changed. This repository explores evaluation only when it matters.
 
 ## Repository Structure
 
