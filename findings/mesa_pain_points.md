@@ -11,7 +11,7 @@ Example:
 predator_nearby()
 energy < threshold
 
-These checks run even when no relevant state has changed. This happens because there is no mechanism for dependency-aware execution. The system does not track which variables affect which behaviors, so all conditions must be evaluated unconditionally.
+These checks run even when no relevant state has changed. This happens because there is no mechanism for dependency-aware execution. The system does not track which variables affect which behaviors, so all conditions must be evaluated unconditionally. This leads to repeated evaluation of unchanged conditions, as confirmed by benchmarks comparing time driven and trigger based evaluations.
 
 ## Behavior logic accumulates inside step()
 
@@ -23,7 +23,7 @@ As models grow:
 - logic becomes harder to maintain
 - responsibilities become mixed
 
-This is not just a structural issue. It happens because execution is tied to the scheduler, and there is no way to define independently activated behaviors. All logic must therefore be placed inside a single entry point.
+This is not just a structural issue. It happens because execution is tied to the scheduler, and there is no way to define independently activated behaviors. All behavior must therefore be placed inside a single entry point.
 
 ## Manual decision pipelines
 
@@ -49,7 +49,7 @@ There is no mechanism to separate:
 - policy execution
 - activation conditions
 
-As a result, decision logic remains tightly coupled to the agent’s execution cycle.
+As a result, policy evaluation is tied to the step loop, not to relevant state changes,
 
 ## Behavior depends on scheduler ordering
 
@@ -72,22 +72,16 @@ It improves:
 - action reuse
 - interruptible execution
 
-However:
-
-- it focuses on how actions execute over time
-- not when behaviors should be triggered
-
-Observation and decision logic remain inside step().
-
-As a result, the core execution model is unchanged.
+However, it defines how actions execute, not when behaviors should be activated. Observation and decision logic remain inside step(). As a result, the core execution model remains time driven.
 
 ## Root Cause
 
-The issues above are not independent. They arise from a shared limitation: behavior execution is tied to time-based scheduling rather than state changes.
+The issues above are not independent. They arise from a shared limitation, which is behavior execution is tied to time driven scheduling rather than state changes.
 
 As a result:
 
 - all conditions are evaluated every step
+- this leads to repeated evaluation of unchanged conditions
 - behavior cannot be selectively activated
 - logic accumulates inside a single execution point
 - execution timing depends on scheduler order

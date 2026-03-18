@@ -6,13 +6,9 @@ The goal is not to introduce a new framework, but to identify minimal, reusable 
 
 ## Core Direction
 
-The primary limitation identified is that behavior execution in Mesa is time-driven rather than condition-driven.
+The primary limitation identified is that behavior execution in Mesa is time-driven rather than condition-driven. Behavior is evaluated because the scheduler advances, not because relevant conditions become true.
 
-Behavior is evaluated because the scheduler advances, not because relevant conditions become true.
-
-Among the candidates listed below, the central contribution is:
-
--> State-Triggered Execution (Candidate 1)
+Among the candidates listed below, the central contribution is State-Triggered Execution (Candidate 1)
 
 The remaining candidates:
 
@@ -25,7 +21,7 @@ operate as supporting abstractions. They improve clarity and structure, but do n
 
 ## Candidate 1 — State-Triggered Execution
 
-Problem
+### Problem
 
 Many behaviors are driven by conditions:
 
@@ -46,53 +42,47 @@ Additionally, agent behavior depends on scheduler activation order:
 - fixed ordering can bias outcomes
 - random ordering only partially mitigates this
 
-Implication
+### Implication
 
-When behavior executes is determined by scheduler timing, not by when conditions become true.
+When behavior executes is determined by scheduler timing, not by when conditions become true. This creates a structural mismatch between state changes and behavior activation. 
 
-This creates a mismatch between:
+### Idea
 
-- state changes
-- behavior activation
+Introduce a state-triggered execution mechanism where behavior is evaluated only when relevant state changes occur.This is not a simple condition check, but a structured execution unit:
 
-Idea
-
-Introduce a state-triggered execution mechanism where behavior is evaluated only when relevant state changes occur.
+StateTrigger:
+- condition: function(state) -> bool
+- dependencies: set of variables the condition depends on
+- activation rule: fires when condition transitions false -> true
 
 Example:
 
 energy < threshold -> seek_food()
 
-Instead of checking this every step, the condition is evaluated when energy changes.
+Instead of evaluating this every step, the system tracks changes to energy and evaluates the condition only when energy is updated.
 
-Key Property
+### Execution Semantics
 
-Execution is driven by:
+Execution follows:
 
-- state transitions
+state change ->
+    evaluate dependent triggers ->
+        if condition becomes true ->
+            schedule behavior execution
 
-rather than:
+This introduces dependency-aware evaluation, where only relevant conditions are re-evaluated.
 
-- scheduler iteration
+### Key Property
 
-This represents a shift in execution semantics, not just an optimization.
+Execution is driven by state transitions with dependency tracking rather than  unconditional scheduler iteration. This is not an optimization layer. It introduces a different execution model.
 
-Scope
+### Additional Consideration
 
-- improves selectivity of behavior execution
-- reduces unnecessary evaluation
-- decouples behavior from scheduler timing
-- does not replace step-based systems entirely
-
-Limitation
-
-This approach is most effective when state changes are relatively sparse.
-
-In systems where relevant variables change every step, the advantage over step-based evaluation is reduced.
+The system requires tracking dependencies between state variables and conditions. This can be implemented through explicit declaration of dependencies or automatic tracking mechanisms. The choice affects complexity and performance, and requires further evaluation.
 
 ## Candidate 2 — Observation Helpers
 
-Problem
+### Problem
 
 Agents repeatedly scan their local environment:
 
@@ -106,7 +96,7 @@ This logic is:
 - repeated across models
 - tightly coupled with decision logic
 
-Idea
+### Idea
 
 Provide small helpers for common observation patterns.
 
@@ -115,7 +105,7 @@ Example:
 observe_neighbors(type=Wolf)
 observe_neighbors(type=Resource)
 
-Scope
+### Scope
 
 - reduces repeated code
 - separates observation from decision logic
@@ -125,7 +115,7 @@ This operates at the observation layer and is independent of execution semantics
 
 ## Candidate 3 — Decision Pipelines
 
-Problem
+### Problem
 
 Structured behavior (e.g. BDI) requires staged decision logic:
 
@@ -144,15 +134,11 @@ From experiments:
 - introduces overhead
 - remains manually structured
 
-Idea
+### Idea
 
-Provide lightweight support for organizing staged decision logic.
+Provide lightweight support for organizing staged decision logic. This is not a full framework, but a minimal abstraction to make staged behavior explicit. Also supports simple policy-based decision making (state -> action) by separating decision computation from execution.
 
-This is not a full framework, but a minimal abstraction to make staged behavior explicit.
-
-Also supports simple policy-based decision making (state -> action) by separating decision computation from execution.
-
-Scope
+### Scope
 
 - improves readability and structure
 - does not enforce a specific architecture
@@ -160,9 +146,11 @@ Scope
 
 This operates at the decision layer and does not affect when behavior is executed.
 
+This becomes significantly more effective when combined with state-triggered execution, where individual stages can be activated based on relevant state changes rather than executed unconditionally.
+
 ## Candidate 4 — Behavior Composition
 
-Problem
+### Problem
 
 As behaviors increase, step() becomes long and difficult to maintain.
 
@@ -174,11 +162,9 @@ Observed patterns:
 
 All combined in a single function.
 
-Observation
+### Observation
 
-This is not simply a lack of modularity features.
-
-It arises because:
+This is not simply a lack of modularity features. It arises because:
 
 - observation
 - decision
@@ -186,7 +172,7 @@ It arises because:
 
 are all embedded together.
 
-Idea
+### Idea
 
 By separating:
 
@@ -194,11 +180,9 @@ By separating:
 - observation
 - decision
 
-behavior can be expressed as smaller, composable units.
+behavior can be expressed as smaller, composable units.This is supported by the behavior_modularity experiment, where modular and flat implementations produced equivalent results with improved structure.
 
-This is supported by the behavior_modularity experiment, where modular and flat implementations produced equivalent results with improved structure.
-
-Scope
+### Scope
 
 - improves organization without enforcing a framework
 - enables reuse across agents
@@ -206,9 +190,11 @@ Scope
 
 This emerges from improved separation of concerns, not from a new execution model.
 
+This relies on separating activation (when behavior runs) from logic (what behavior does), which is not possible under purely step-based execution.
+
 ## Candidate 5 — Evaluation Ordering
 
-Problem
+### Problem
 
 From experiments:
 
@@ -218,7 +204,7 @@ From experiments:
 
 This means behavior depends not only on rules, but also on when agents are evaluated.
 
-Idea
+### Idea
 
 Provide explicit control over evaluation ordering:
 
@@ -226,7 +212,15 @@ Provide explicit control over evaluation ordering:
 - fixed
 - priority-based
 
-Scope
+### Scope
+
+- improves transparency of execution timing
+- reduces unintended bias
+- does not replace the scheduler
+
+This is a secondary concern related to scheduler behavior and does not address execution semantics directly.
+
+### Scope
 
 - improves transparency of execution timing
 - reduces unintended bias
@@ -236,9 +230,7 @@ This is a secondary concern related to scheduler behavior and does not address e
 
 ## Notes
 
-These primitives are intentionally minimal.
-
-Mesa 4.0 introduces an Actions API, which improves how actions are executed.
+These primitives are intentionally minimal. Mesa 4.0 introduces an Actions API, which improves how actions are executed.
 
 The primitives here focus on what is still missing:
 
@@ -254,9 +246,9 @@ In this case:
 - the trigger determines when behavior starts
 - the action system defines how it executes
 
-These are complementary.
+These are complementary and do not overlap in responsibility.
 
-## Mapping: Pain Points → Primitives
+## Mapping: Pain Points -> Primitives
 
 - Repeated condition checks -> State-Triggered Execution
 - Behavior logic inside step() -> Decision Pipelines + Behavior Composition
