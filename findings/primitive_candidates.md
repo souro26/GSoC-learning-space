@@ -17,7 +17,7 @@ The remaining candidates:
 - Behavior Composition
 - Evaluation Ordering
 
-operate as supporting abstractions. They improve clarity and structure, but do not address execution semantics directly.
+operate as supporting abstractions that become significantly more effective under a state-triggered execution model. They improve clarity and structure, but do not address execution semantics independently.
 
 ## Candidate 1 — State-Triggered Execution
 
@@ -70,7 +70,7 @@ state change ->
         if condition becomes true ->
             schedule behavior execution
 
-This introduces dependency-aware evaluation, where only relevant conditions are re-evaluated.
+This introduces dependency-aware evaluation, where only relevant conditions are re-evaluated. This differs from event-based systems, where events are pre-scheduled in time. Here, activation emerges from state changes rather than from a predefined event timeline.
 
 ### Key Property
 
@@ -78,7 +78,7 @@ Execution is driven by state transitions with dependency tracking rather than  u
 
 ### Additional Consideration
 
-The system requires tracking dependencies between state variables and conditions. This can be implemented through explicit declaration of dependencies or automatic tracking mechanisms. The choice affects complexity and performance, and requires further evaluation.
+The system requires tracking dependencies between state variables and conditions. This can be implemented through explicit declaration of dependencies or automatic tracking mechanisms. The choice affects complexity and performance, and requires further evaluation. Incorrect or incomplete dependency specification can lead to missed activations or unnecessary evaluations. This introduces a trade-off between accuracy and overhead in dependency tracking.
 
 ## Candidate 2 — Observation Helpers
 
@@ -112,6 +112,8 @@ observe_neighbors(type=Resource)
 - does not introduce new execution behavior
 
 This operates at the observation layer and is independent of execution semantics.
+
+Under step-based execution, these scans must be repeated every step. With state-triggered execution, observation can instead be updated in response to relevant environmental changes.
 
 ## Candidate 3 — Decision Pipelines
 
@@ -218,15 +220,7 @@ Provide explicit control over evaluation ordering:
 - reduces unintended bias
 - does not replace the scheduler
 
-This is a secondary concern related to scheduler behavior and does not address execution semantics directly.
-
-### Scope
-
-- improves transparency of execution timing
-- reduces unintended bias
-- does not replace the scheduler
-
-This is a secondary concern related to scheduler behavior and does not address execution semantics directly.
+This is a secondary concern related to scheduler behavior and does not address execution semantics directly. This becomes particularly relevant when multiple triggers activate simultaneously, requiring explicit resolution of execution order.
 
 ## Notes
 
@@ -246,7 +240,7 @@ In this case:
 - the trigger determines when behavior starts
 - the action system defines how it executes
 
-These are complementary and do not overlap in responsibility.
+These are complementary and do not overlap in responsibility. This separation ensures that execution semantics (when behavior runs) and action semantics (how behavior runs) remain distinct.
 
 ## Mapping: Pain Points -> Primitives
 
